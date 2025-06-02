@@ -134,21 +134,20 @@
       this.hold = null;
       this.canHold = true;
       this.prevShape = null;
-      this.gameOver = false;
-      this.cpuTimer = 0;
+      this.gameOver = false;      this.cpuTimer = 0;
       this.ready = (mode==='human');
       this.readyTimer = 0;
         // Adjust CPU difficulty based on competition level
       if (mode === 'cpu') {
         if (competition === 'high') {
-          this.readyDelay = Math.random() * 30 + 10; // Even faster start (10-40ms)
-          this.dropInterval = 50; // Even faster drops
-          this.moveInterval = 60; // Even faster moves
+          this.readyDelay = Math.random() * 30 + 10; // Faster start (10-40ms)
+          this.dropInterval = 500; // Same as player speed
+          this.moveInterval = 200; // Same as player speed
           this.skillLevel = 'expert'; // Expert AI
         } else {
-          this.readyDelay = Math.random() * 2000 + 2500; // Even slower start (2.5-4.5s)
-          this.dropInterval = 2500; // Even slower drops
-          this.moveInterval = 2200; // Even slower moves
+          this.readyDelay = Math.random() * 2000 + 2500; // Slower start (2.5-4.5s)
+          this.dropInterval = 500; // Same as player speed
+          this.moveInterval = 200; // Same as player speed
           this.skillLevel = 'beginner'; // Beginner AI
         }
       } else {
@@ -182,14 +181,13 @@
         if (X<0||X>=10||Y<0||Y>=20||this.grid[Y][X]) return false;
       }
       return true;
-    }
-    clearLines() {
+    }    clearLines() {
       const before = this.grid.length;
-      this.grid = this.grid.filter(row => row.some(v=>v===0));
+      this.grid = this.grid.filter(row => row.includes(0));
       const L = 20 - this.grid.length;
       while (this.grid.length<20) this.grid.unshift(Array(10).fill(0));
       return L;
-    }    lock() {
+    }lock() {
       for (let r=0; r<this.mat.length; r++) for (let c=0; c<this.mat[r].length; c++) {
         if (this.mat[r][c]) this.grid[this.y+r][this.x+c] = this.prevShape;
       }
@@ -277,7 +275,7 @@
           let score;          if (competition === 'high') {
             // High competition: Perfect AI, maximize line clears, avoid holes, flat surface
             score = aggregateHeight(g) * 0.2
-                  + countHoles(g) * 50.0      // Massive penalty for holes - avoid at all costs
+                  + countHoles(g) * 100.0      // Massive penalty for holes - avoid at all costs
                   + bumpiness(g) * 1.0        // Strong penalty for uneven surface
                   - lines * 100               // Maximize line clears
                   - (lines >= 4 ? 200 : 0);   // Huge bonus for Tetris
@@ -336,10 +334,9 @@
         this.readyTimer += dt;
         if (this.readyTimer >= this.readyDelay) this.ready = true;
         else return;
-      }
-      if (this.gameOver) {
-        // Award minimum score if CPU loses with 0 points
-        if (this.mode === 'cpu' && this.score === 0) {
+      }      if (this.gameOver) {
+        // Award minimum score if CPU loses with 0 points in high competition only
+        if (this.mode === 'cpu' && this.score === 0 && competition === 'high') {
           this.score = 100;
         }
         return;

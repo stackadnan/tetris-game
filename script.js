@@ -1,12 +1,15 @@
 (function() {  // --- Parameters & Device Detection ---
   const params      = new URLSearchParams(location.search);
-  const competition = (params.get('competition') || 'Low').toLowerCase();
+  const competitionRaw = params.get('competition') || 'Low';
+  const competition = competitionRaw.toLowerCase();
   const valence     = params.get('valence')   || 'Positive';
   const round       = parseInt(params.get('round')) || 1;
   const mode        = params.get('mode') || 'vs'; // 'vs' or 'solo'
   const isMobile    = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
-  console.log(`Game initialized: Competition=${competition}, Round=${round}, Mode=${mode}`);
+  console.log(`Game initialized: Competition=${competition} (raw: ${competitionRaw}), Round=${round}, Mode=${mode}`);
+  console.log(`Full URL: ${location.href}`);
+  console.log(`URL search params: ${location.search}`);
   
   // Add debug logging for garbage system
   console.log('Garbage system enabled for high competition:', competition === 'high' && mode === 'vs');

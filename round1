@@ -1,7 +1,21 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
   // Competition level is set by Qualtrics Survey Flow randomization
   var competition = "${e://Field(Competition)}";
-  console.log("Round 1: Using Survey Flow competition assignment: " + competition);
+  
+  // Debug: Check if Survey Flow set the competition properly
+  console.log("Raw competition field value:", competition);
+  console.log("Competition field type:", typeof competition);
+  console.log("Competition includes ${e://Field:", competition.includes("${e://Field"));
+  
+  // If Survey Flow didn't set competition properly, add fallback randomization
+  if (!competition || competition === "" || competition === "undefined" || competition.includes("${e://Field")) {
+    // Fallback: Randomly assign to High or Low competition
+    competition = Math.random() < 0.5 ? "High" : "Low";
+    Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
+    console.log("Round 1: Survey Flow failed - using fallback randomization:", competition);
+  } else {
+    console.log("Round 1: Using Survey Flow competition assignment:", competition);
+  }
   
   var valence     = "${e://Field(Seq1)}";
   var round       = 1;

@@ -617,15 +617,13 @@
         // Add CPU message
       const cpuMessage = document.createElement('div');
       cpuMessage.className = 'message ash';
-      
-      // Determine who won based on actual game outcome
+        // Determine who won based on actual game outcome
       let text = 'That was something.';
       if (mode === 'vs') {
         // In vs mode, check who has higher score or who didn't game over
-        const playerWon = (player.gameOver && !cpu.gameOver) || 
-                         (!player.gameOver && cpu.gameOver && player.score >= cpu.score) ||
-                         (!player.gameOver && !cpu.gameOver && player.score > cpu.score) ||
-                         (player.gameOver && cpu.gameOver && player.score > cpu.score);
+        const playerWon = (!player.gameOver && cpu.gameOver) || 
+                         (player.gameOver && cpu.gameOver && player.score > cpu.score) ||
+                         (!player.gameOver && !cpu.gameOver && player.score > cpu.score);
         
         if (playerWon) {
           text = 'Thanks for playing. That was great.';

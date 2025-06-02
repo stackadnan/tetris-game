@@ -266,19 +266,21 @@
           let y=0;
           while (this.valid(mat,x,y)) y++;
           y--;
-          if (y<0) continue;
-          const g = this.grid.map(row=>row.slice());
+          if (y<0) continue;          const g = this.grid.map(row=>row.slice());
           for (let rr=0; rr<mat.length; rr++) for (let cc=0; cc<mat[rr].length; cc++) {
-            if (mat[rr][cc]) g[y+rr][x+cc] = 1;
+            if (mat[rr][cc]) g[y+rr][x+cc] = this.prevShape;
           }
-          const lines = 20 - g.filter(rw=>rw.every(v=>v!==0)).length;
+          // Count how many lines would be cleared
+          const completeRows = g.filter(row => row.every(cell => cell !== 0));
+          const lines = completeRows.length;
           let score;          if (competition === 'high') {
             // High competition: Perfect AI, maximize line clears, avoid holes, flat surface
-            score = aggregateHeight(g) * 0.2
-                  + countHoles(g) * 100.0      // Massive penalty for holes - avoid at all costs
-                  + bumpiness(g) * 1.0        // Strong penalty for uneven surface
-                  - lines * 100               // Maximize line clears
-                  - (lines >= 4 ? 200 : 0);   // Huge bonus for Tetris
+            score = aggregateHeight(g) * 0.5        // Penalty for height
+                  + countHoles(g) * 100.0           // Massive penalty for holes - avoid at all costs
+                  + bumpiness(g) * 2.0              // Strong penalty for uneven surface
+                  - lines * 1000                    // HUGE bonus for line clears
+                  - (lines >= 4 ? 2000 : 0)         // Massive bonus for Tetris
+                  - (lines >= 2 ? 500 : 0);         // Extra bonus for double+ lines
           } else {
             // Low competition: Bad AI, prefers holes, avoids line clears, random
             score = -aggregateHeight(g) * 0.1   // Likes tall stacks
@@ -307,9 +309,26 @@
           // 15% chance: skip move (do nothing)
           plan = {rot: this.rot, x: this.x, y: this.y};
         }
+      }      this.cpuPlan = plan;
+      console.log(`CPU (${competition}): Planned move - rot:${plan.rot}, x:${plan.x}, score:${best.toFixed(2)}`);
+      
+      // Additional debugging for line clearing
+      if (competition === 'high') {
+        // Test the planned move to see if it clears lines
+        const testGrid = this.grid.map(row=>row.slice());
+        const testMat = this.shape[plan.rot];
+        for (let rr=0; rr<testMat.length; rr++) {
+          for (let cc=0; cc<testMat[rr].length; cc++) {
+            if (testMat[rr][cc]) {
+              testGrid[plan.y+rr][plan.x+cc] = this.prevShape;
+            }
+          }
+        }
+        const linesCleared = testGrid.filter(row => row.every(cell => cell !== 0)).length;
+        if (linesCleared > 0) {
+          console.log(`CPU will clear ${linesCleared} lines with this move!`);
+        }
       }
-      this.cpuPlan = plan;
-      console.log(`CPU (${competition}): Planned move - rot:${plan.rot}, x:${plan.x}, score:${best}`);
     }receiveGarbage(rows) {
       console.log(`${this.mode} receiving ${rows} garbage rows`);
       for (let i=0; i<rows; i++) {

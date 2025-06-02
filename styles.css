@@ -325,8 +325,9 @@ body.solo-mode #scoreBars .pill.purple {
 }
 
 body.solo-mode #tetrisWrapper {
-  justify-content: flex-start;
-  padding-left: 200px;
+  justify-content: center;
+  margin-left: 200px;
+  margin-right: 320px;
 }
 
 body.solo-mode #soloInstructions {
@@ -338,8 +339,7 @@ body.solo-mode #playerCanvas {
 }
 
 body.solo-mode #scoreBars {
-  text-align: left;
-  padding-left: 200px;
+  text-align: center;
 }
 
 /* Vertical Score Bars */

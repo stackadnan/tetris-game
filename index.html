@@ -21,72 +21,77 @@
     <span id="playerPill" class="pill blue">Player: <b><span id="playerScorePill">0</span> pts</b></span>
     <span id="cpuPill"    class="pill red">CPU:    <b><span id="cpuScorePill">0</span> pts</b></span>
   </div>
-
   <!-- Lead Message -->
   <div id="leadText"></div>
-  <!-- Game Canvases -->
-  <div id="tetrisWrapper">
-    <canvas id="playerCanvas" class="player" width="300" height="600"></canvas>    <div id="scoreBarVertical">      <div class="score-bar-container">
-        <div class="score-bar-wrapper">
-          <span class="score-label score-player" id="scoreBarPlayerLabel">0</span>
-          <div class="score-bar player">
-            <div class="score-bar-inner" id="scoreBarPlayerInner"></div>
-          </div>
-          <span class="score-name-player">PLAYER</span>
-        </div>
-        <div class="score-bar-wrapper">
-          <span class="score-label score-cpu" id="scoreBarCpuLabel">0</span>
-          <div class="score-bar cpu">
-            <div class="score-bar-inner" id="scoreBarCpuInner"></div>
-          </div>
-          <span class="score-name-cpu">ASH</span>
-        </div>
+  
+  <!-- Main Game Area: Controls + Game Canvases + Instructions -->
+  <div id="mainGameArea">
+    <!-- Desktop Controls & Hold Box -->
+    <div id="controls">
+      <div class="hold-label">HELD PIECE</div>
+      <div id="holdBox"><canvas id="holdCanvas" width="64" height="64"></canvas></div>
+      <button id="holdButton">HOLD PIECE</button>
+      <div class="moveButtons">
+        <button id="moveLeft">← A</button>
+        <button id="moveDown">↓ B</button>
+        <button id="moveRight">→ C</button>
       </div>
+      <button id="rotateButton">↑ Shift ROTATE</button>
+      <button id="dropButton">DROP</button>
     </div>
-    <canvas id="cpuCanvas"    class="cpu"    width="300" height="600"></canvas>
-  </div>
-
-  <!-- Solo Mode Instructions -->
-  <div id="soloInstructions">
-    <h2>How to Play Tetris</h2>
-    <div class="instruction-grid">
-      <div class="instruction-item">
-        <span class="key-icon">←→</span>
-        <span class="instruction-text">Move left/right</span>
+    
+    <!-- Game Canvases -->
+    <div id="tetrisWrapper">
+      <canvas id="playerCanvas" class="player" width="300" height="600"></canvas>
+      <div id="scoreBarVertical">
+        <div class="score-bar-container">
+          <div class="score-bar-wrapper">
+            <span class="score-label score-player" id="scoreBarPlayerLabel">0</span>
+            <div class="score-bar player">
+              <div class="score-bar-inner" id="scoreBarPlayerInner"></div>
+            </div>
+            <span class="score-name-player">PLAYER</span>
+          </div>
+          <div class="score-bar-wrapper">
+            <span class="score-label score-cpu" id="scoreBarCpuLabel">0</span>
+            <div class="score-bar cpu">
+              <div class="score-bar-inner" id="scoreBarCpuInner"></div>
+            </div>
+            <span class="score-name-cpu">ASH</span>
+          </div>
+        </div>
       </div>
-      <div class="instruction-item">
-        <span class="key-icon">↑</span>
-        <span class="instruction-text">Rotate piece</span>
-      </div>
-      <div class="instruction-item">
-        <span class="key-icon">↓</span>
-        <span class="instruction-text">Soft drop</span>
-      </div>
-      <div class="instruction-item">
-        <span class="key-icon">SPACE</span>
-        <span class="instruction-text">Hard drop</span>
-      </div>
-      <div class="instruction-item">
-        <span class="key-icon">C</span>
-        <span class="instruction-text">Hold piece</span>
-      </div>
+      <canvas id="cpuCanvas" class="cpu" width="300" height="600"></canvas>
     </div>
-    <p class="goal-text">Clear horizontal lines by filling them completely. Clear 4 lines at once for a TETRIS!</p>
-  </div>
 
-  <!-- Desktop Controls & Hold Box -->
-<div id="controls">
-  <div class="hold-label">HELD PIECE</div>
-  <div id="holdBox"><canvas id="holdCanvas" width="64" height="64"></canvas></div>
-  <button id="holdButton">HOLD PIECE</button>
-  <div class="moveButtons">
-    <button id="moveLeft">← A</button>
-    <button id="moveDown">↓ B</button>
-    <button id="moveRight">→ C</button>
-  </div>
-  <button id="rotateButton">↑ Shift ROTATE</button>
-  <button id="dropButton">DROP</button>
-</div>  <!-- Mobile Touch Buttons -->
+    <!-- Solo Mode Instructions -->
+    <div id="soloInstructions">
+      <h2>How to Play Tetris</h2>
+      <div class="instruction-grid">
+        <div class="instruction-item">
+          <span class="key-icon">←→</span>
+          <span class="instruction-text">Move left/right</span>
+        </div>
+        <div class="instruction-item">
+          <span class="key-icon">↑</span>
+          <span class="instruction-text">Rotate piece</span>
+        </div>
+        <div class="instruction-item">
+          <span class="key-icon">↓</span>
+          <span class="instruction-text">Soft drop</span>
+        </div>
+        <div class="instruction-item">
+          <span class="key-icon">SPACE</span>
+          <span class="instruction-text">Hard drop</span>
+        </div>
+        <div class="instruction-item">
+          <span class="key-icon">C</span>
+          <span class="instruction-text">Hold piece</span>
+        </div>
+      </div>
+      <p class="goal-text">Clear horizontal lines by filling them completely. Clear 4 lines at once for a TETRIS!</p>
+    </div>
+  </div><!-- Mobile Touch Buttons -->
   <div id="mobileControls">
     <div class="mobile-control-row">
       <button data-cmd="hold">HOLD PIECE</button>

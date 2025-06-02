@@ -2,8 +2,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  width: 75%;
-  height: 75%;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: #ddd;
   color: #111;
@@ -89,33 +89,31 @@ html, body {
   to   { transform: translate(-48%, -52%) rotate(-10deg); }
 }
 
-/* Game Area */
-#tetrisWrapper {
+/* Main Game Area - Flexbox Layout */
+#mainGameArea {
   position: absolute;
-  top: 120px; bottom: 160px;
-  left: 0; right: 0;
+  top: 50px;
+  bottom: 50px;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 8px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+  gap: 20px;
+  min-width: 1000px; /* Minimum width to maintain layout */
 }
-canvas {
-  background: #000;
-  width: 100%; max-width: 300px;
-  height: auto;
-  box-shadow: 0 0 6px rgba(255,255,255,0.2);
-  touch-action: none;
-}
-canvas.player { border: 3px solid blue; }
-canvas.cpu    { border: 3px solid red; }
 
-/* Controls */
+/* Controls - Fixed width, no absolute positioning */
 #controls {
-  position: absolute;
-  left: 32px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  left: unset;
+  top: unset;
+  transform: none;
+  flex: 0 0 auto;
+  width: 220px;
   background: none;
   border: none;
   border-radius: 0;
@@ -127,6 +125,39 @@ canvas.cpu    { border: 3px solid red; }
   align-items: center;
   gap: 18px;
   z-index: 10;
+}
+
+/* Game Area */
+#tetrisWrapper {
+  position: static;
+  top: unset;
+  bottom: unset;
+  left: unset;
+  right: unset;
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  min-width: 620px; /* Minimum width for two canvases + score bar */
+}
+
+/* Solo Mode Instructions - Fixed width */
+#soloInstructions {
+  position: static;
+  right: unset;
+  top: unset;
+  transform: none;
+  flex: 0 0 auto;
+  width: 320px;
+  display: none; /* Hidden by default, shown in solo mode */
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 3px solid #495057;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+  font-family: Arial, sans-serif;
 }
 #controls .hold-label {
   font-size: 1.1rem;
@@ -237,21 +268,7 @@ button:active, #controls button:active {
   z-index: 85;
 }
 
-/* Solo Mode Instructions */
-#soloInstructions {
-  display: none;
-  position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 320px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 3px solid #495057;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
-  font-family: Arial, sans-serif;
-}
+/* Solo Mode Instructions Styling */
 
 #soloInstructions h2 {
   margin: 0 0 20px 0;
@@ -316,7 +333,7 @@ button:active, #controls button:active {
   border: 1px solid #dee2e6;
 }
 
-/* Solo Mode Layout */
+/* Solo Mode Layout - Override flexbox for solo mode */
 body.solo-mode #scoreBarVertical,
 body.solo-mode #cpuCanvas,
 body.solo-mode #scoreBars .pill.red,
@@ -324,14 +341,15 @@ body.solo-mode #scoreBars .pill.purple {
   display: none !important;
 }
 
-body.solo-mode #tetrisWrapper {
-  justify-content: center;
-  margin-left: 200px;
-  margin-right: 320px;
+body.solo-mode #soloInstructions {
+  display: flex !important;
+  flex-direction: column;
 }
 
-body.solo-mode #soloInstructions {
-  display: block;
+body.solo-mode #tetrisWrapper {
+  justify-content: center;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 body.solo-mode #playerCanvas {
@@ -442,399 +460,102 @@ body.solo-mode #scoreBars {
   overflow: hidden;
 }
 
-@media (max-width: 900px) {
-  #controls {
-    left: 16px;
-    gap: 12px;
+/* Canvas Styling */
+canvas {
+  background: #000;
+  width: 300px;
+  max-width: 300px;
+  height: 600px;
+  box-shadow: 0 0 6px rgba(255,255,255,0.2);
+  touch-action: none;
+}
+canvas.player { border: 3px solid blue; }
+canvas.cpu    { border: 3px solid red; }
+
+/* Prevent overlap on smaller screens - scale down but maintain structure */
+@media (max-width: 1200px) {
+  #mainGameArea {
+    min-width: 800px;
+    gap: 15px;
+    padding: 15px;
   }
+  
+  #controls {
+    width: 180px;
+  }
+  
   #controls .hold-label {
     font-size: 0.9rem;
   }
+  
   #holdBox {
     width: 60px;
     height: 60px;
   }
+  
   #holdBox canvas {
     width: 48px;
     height: 48px;
   }
+  
   #holdButton {
     width: 56px;
     height: 40px;
     font-size: 0.9rem;
   }
+  
   .moveButtons button {
     width: 48px;
     height: 48px;
     font-size: 1.1rem;
   }
+  
   #rotateButton {
     width: 100px;
     height: 36px;
     font-size: 0.9rem;
   }
+  
   #dropButton {
     width: 180px;
     height: 40px;
     font-size: 1.2rem;
   }
-  #scoreBarVertical {
-    margin: 0 1vw; /* Use viewport width for margin */
-    min-width: clamp(40px, 5vw, 60px); /* Responsive min-width */
-    height: 100%; /* Ensure it takes full height of its container part in tetrisWrapper */
-  }
-  .score-bar {
-    width: clamp(16px, 2vw, 24px); /* Responsive width */
-    height: clamp(100px, 30vh, 250px); /* Responsive height */
-    /* border-radius: 999px; */ /* Already in base, inherited */
-  }
-  .score-label {
-    font-size: clamp(1rem, 1.8vw, 1.5rem); /* Responsive font size */
-    /* Remove properties that create a box or misalign */
-    /* top: -50px; */ /* Removed */
-    /* padding: 3px 8px; */ /* Removed */
-    /* Base styles for no-box look are inherited: background: none, border: none, padding: 0, etc. */
-  }
-  .score-name-player, .score-name-cpu {
-    font-size: clamp(0.5rem, 0.8vw, 0.7rem); /* Responsive font size */
-    width: clamp(32px, 4vw, 70px); /* Responsive width */
-    /* font-weight, letter-spacing, text-shadow are fine */
-  }
-  .score-bar-container {
-    gap: clamp(8px, 1.5vw, 12px); /* Responsive gap */
-  }
-
-  /* Solo Mode Tablet */
-  body.solo-mode #tetrisWrapper {
-    padding-left: 140px;
-  }
   
-  body.solo-mode #soloInstructions {
-    right: 20px;
+  #soloInstructions {
     width: 280px;
     padding: 20px;
   }
   
-  body.solo-mode #soloInstructions h2 {
-    font-size: 1.4rem;
-  }
-  
-  body.solo-mode .instruction-item {
-    padding: 6px 10px;
-    gap: 12px;
-  }
-  
-  body.solo-mode .key-icon {
-    min-width: 50px;
-    height: 28px;
-    font-size: 0.8rem;
-  }
-  
-  body.solo-mode .instruction-text {
-    font-size: 0.9rem;
-  }
-  
-  body.solo-mode .goal-text {
-    font-size: 0.85rem;
-    padding: 12px;
-  }
-  
-  body.solo-mode #scoreBars {
-    padding-left: 140px;
+  canvas {
+    width: 250px;
+    max-width: 250px;
+    height: 500px;
   }
 }
 
-@media (max-width: 400px) {
-  #tetrisWrapper {
-    gap: 6px;
-    bottom: 180px;
-  }
-  #mobileControls {
-    bottom: 6px;
+@media (max-width: 900px) {
+  #mainGameArea {
+    min-width: 600px;
+    gap: 10px;
     padding: 10px;
-    gap: 6px;
-    width: 90%;
-    max-width: 320px;
-  }
-  #mobileControls button {
-    width: 50px;
-    height: 50px;
-    font-size: 1rem;
-  }
-  #mobileControls button[data-cmd="hardDrop"] {
-    width: 220px;
-    font-size: 0.8rem;
-  }
-  #mobileControls button[data-cmd="hold"] {
-    width: 75px;
-    font-size: 0.7rem;
-  }
-  #mobileControls button[data-cmd="rotate"] {
-    width: 90px;
-    font-size: 0.6rem;
-  }  #scoreBarVertical {
-    height: 280px;
-    min-width: 80px;
-  }
-  .score-bar {
-    width: 18px;
-    height: 220px;
-  }.score-label {
-    font-size: 1.2rem;
-    top: -35px;
-    padding: 2px 6px;
-  }
-  .score-name-player, .score-name-cpu {
-    font-size: 0.6rem;
-    width: 28px;
-  }
-  canvas {
-    max-width: 10px;
-  }
-  #mobileInstructions {
-    top: 65px;
-    width: 90px;
-    font-size: 0.7rem;
-    right: 6px;
   }
   
-  #mobileHoldBox {
-    top: 10px;
-    width: 70px;
-    height: 70px;
-    font-size: 0.6rem;
-    right: 0px;
+  #controls {
+    width: 140px;
+  }
+  
+  #soloInstructions {
+    width: 220px;
+    padding: 16px;
+  }
+  
+  canvas {
+    width: 200px;
+    max-width: 200px;
+    height: 400px;
   }
 }
 
-/* Mobile Layout - Restructure for mobile devices */
-@media (max-width: 600px) {
-  /* Show horizontal score pills, hide vertical bars */
-  #scoreBars {
-    display: flex !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    background: #111;
-    padding: clamp(8px, 2vw, 16px);
-    justify-content: center;
-    align-items: center;
-    gap: clamp(8px, 3vw, 16px);
-    z-index: 100;
-    height: auto;
-    min-height: clamp(50px, 12vw, 70px);
-    box-sizing: border-box;
-  }
-  
-  #scoreBarVertical {
-    display: none !important;
-  }
-  
-  .pill {
-    padding: clamp(6px, 2vw, 12px) clamp(12px, 4vw, 20px);
-    font-size: clamp(14px, 4vw, 18px);
-    border-radius: clamp(16px, 4vw, 24px);
-    font-weight: bold;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    min-width: clamp(120px, 35vw, 180px);
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  
-  /* Vertical canvas stacking */
-  #tetrisWrapper {
-    position: fixed;
-    top: clamp(60px, 15vw, 90px);
-    bottom: clamp(180px, 45vw, 220px);
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: clamp(12px, 3vw, 20px);
-    padding: clamp(8px, 2vw, 16px);
-    overflow-y: auto;
-    box-sizing: border-box;
-  }
-  
-  /* Stack canvases vertically */
-  canvas {
-    width: 100%;
-    max-width: clamp(280px, 70vw, 350px);
-    height: auto;
-    aspect-ratio: 1/2; /* Maintain 1:2 aspect ratio */
-    touch-action: manipulation;
-  }
-  
-  #playerCanvas {
-    order: 1;
-    margin-bottom: clamp(8px, 2vw, 12px);
-  }
-  
-  #cpuCanvas {
-    order: 2;
-    max-width: clamp(240px, 60vw, 300px); /* Slightly smaller than player */
-  }
-  
-  /* Hide desktop controls completely */
-  #controls {
-    display: none !important;
-  }
-  
-  /* Show and style mobile controls */
-  #mobileControls {
-    display: flex !important;
-    position: fixed;
-    bottom: 0;
-    left: 10px;
-    right: 0;
-    /* background: rgba(0, 0, 0, 0); */
-    padding: clamp(12px, 3vw, 20px);
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(8px, 2vw, 12px);
-    z-index: 90;
-    /* border-top: 2px solid #333; */
-    /* box-sizing: border-box; */
-  }
-  
-  .mobile-control-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: clamp(8px, 2vw, 12px);
-    width: 100%;
-    max-width: clamp(320px, 80vw, 400px);
-  }
-  
-  #mobileControls button {
-    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-    color: #fff;
-    border: 2px solid #444;
-    border-radius: clamp(8px, 2vw, 12px);
-    font-weight: bold;
-    font-size: clamp(12px, 3.5vw, 16px);
-    padding: clamp(8px, 2vw, 12px);
-    min-height: clamp(44px, 12vw, 60px);
-    box-shadow: 
-      0 4px 8px rgba(0,0,0,0.3),
-      inset 0 1px 0 rgba(255,255,255,0.1);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    transition: all 0.15s ease;
-    touch-action: manipulation;
-    user-select: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  #mobileControls button:active {
-    background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
-    box-shadow: 
-      0 2px 4px rgba(0,0,0,0.5),
-      inset 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(2px);
-  }
-  
-  /* Specific button sizes */
-  #mobileControls button[data-cmd="moveLeft"],
-  #mobileControls button[data-cmd="moveDown"],
-  #mobileControls button[data-cmd="moveRight"] {
-    width: clamp(60px, 15vw, 80px);
-    flex: 0 0 auto;
-  }
-  
-  #mobileControls button[data-cmd="hold"] {
-    width: clamp(100px, 25vw, 140px);
-    font-size: clamp(10px, 3vw, 14px);
-  }
-  
-  #mobileControls button[data-cmd="rotate"] {
-    width: clamp(140px, 35vw, 180px);
-    font-size: clamp(10px, 3vw, 14px);
-  }
-  
-  #mobileControls button[data-cmd="hardDrop"] {
-    width: clamp(200px, 50vw, 280px);
-    font-size: clamp(12px, 3.5vw, 16px);
-    background: linear-gradient(145deg, #444, #222);
-    border-color: #666;
-  }
-  
-  #mobileControls button[data-cmd="hardDrop"]:active {
-    background: linear-gradient(145deg, #222, #000);
-  }
-  
-  /* Mobile instructions and hold box */
-  #mobileInstructions {
-    position: fixed;
-    top: clamp(100px, 25vw, 140px);
-    right: clamp(8px, 2vw, 16px);
-    width: clamp(80px, 20vw, 120px);
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: clamp(6px, 1.5vw, 10px);
-    border-radius: clamp(6px, 1.5vw, 10px);
-    font-size: clamp(8px, 2.5vw, 12px);
-    font-weight: bold;
-    text-align: center;
-    z-index: 0;
-    line-height: 1.2;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-  }
-  
-  #mobileHoldBox {
-    position: fixed;
-    top: clamp(180px, 40vw, 220px);
-    right: clamp(8px, 2vw, 16px);
-    width: clamp(70px, 18vw, 100px);
-    height: clamp(70px, 18vw, 100px);
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    border: 2px solid #444;
-    border-radius: clamp(8px, 2vw, 12px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(6px, 2vw, 10px);
-    font-weight: bold;
-    text-align: center;
-    z-index: 80;
-    line-height: 1.1;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
-  
-  /* Solo mode adjustments for mobile */
-  body.solo-mode #tetrisWrapper {
-    padding-left: 0;
-    align-items: center;
-  }
-  
-  body.solo-mode #scoreBars {
-    padding-left: 0;
-    justify-content: center;
-  }
-  
-  body.solo-mode #soloInstructions {
-    display: none; /* Hide on mobile for space */
-  }
-  
-  /* Responsive text sizing */
-  #leadText {
-    font-size: clamp(18px, 6vw, 28px);
-    top: clamp(120px, 30vw, 160px);
-  }
-  
-  #tetrisOverlay {
-    font-size: clamp(24px, 8vw, 36px);
-    top: clamp(140px, 35vw, 180px);
-  }
-  
-  #countdownOverlay {
-    font-size: clamp(60px, 20vw, 96px);
-  }
-}
+/* Remove all responsive and media query rules */
+/* Remove all @media blocks and any clamp() or vw/vh units */

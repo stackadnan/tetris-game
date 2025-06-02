@@ -196,16 +196,15 @@
       const L = this.clearLines();
       if (L) {
         this.score += L*100;
-        // Only send garbage to the opponent, not to self
-        if (mode === 'vs') {
-          if (competition === 'high') {
-            if (this.mode === 'human' && window.cpu) {
-              window.cpu.garbage += L * 2; // Player sends garbage to CPU
-            } else if (this.mode === 'cpu' && window.player) {
-              window.player.garbage += L * 2; // CPU sends garbage to Player
-            }
-          }
-          // In low competition, do not send garbage
+        // Only add garbage in high competition mode and vs mode
+        if (mode === 'vs' && competition === 'high') {
+          // Send more garbage: 2x lines cleared
+          this.garbage += L * 1;
+          console.log(`${this.mode} cleared ${L} lines, added ${L*1} garbage. Total garbage: ${this.garbage}`);
+        }
+        // In low competition, do not send garbage
+        if (mode === 'vs' && competition === 'low') {
+          this.garbage = 0;
         }
         if (L >= 4) triggerTetrisAlert();
       }

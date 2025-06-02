@@ -354,6 +354,10 @@
         if (this.readyTimer >= this.readyDelay) this.ready = true;
         else return;
       }      if (this.gameOver) {
+        // Award minimum score if CPU loses with 0 points in high competition only
+        if (this.mode === 'cpu' && this.score === 0 && competition === 'high') {
+          this.score = 100;
+        }
         return;
       }
       
@@ -434,8 +438,8 @@
   // Initialize scores to 0
   updateScores(0, 0);
   
-  // Track who lost first - make it globally accessible
-  window.gameWinner = null;
+  // Track who lost first
+  let gameWinner = null;
   
   let lastTime = performance.now();
   function gameLoop(timestamp) {
@@ -458,24 +462,31 @@
       updateScores(player.score, cpu.score);
     } else {
       updateScores(player.score, 0);
-    }    // Check for game over and determine winner
+    }
+
+    // Check for game over and determine winner
     if (mode === 'vs' && window.cpu) {
-      if ((player.gameOver || cpu.gameOver) && window.gameWinner === null) {
-        console.log('=== WINNER DETERMINATION (score-based) ===');
-        console.log('Player game over:', player.gameOver, 'Score:', player.score);
-        console.log('CPU game over:', cpu.gameOver, 'Score:', cpu.score);
-        if (player.score > cpu.score) {
-          window.gameWinner = 'player';
-          console.log('Player wins - Higher score');
-        } else if (cpu.score > player.score) {
-          window.gameWinner = 'cpu';
-          console.log('CPU wins - Higher score');
-        } else {
-          window.gameWinner = 'tie';
-          console.log('Tie game - Same scores');
+      if ((player.gameOver || cpu.gameOver) && gameWinner === null) {
+        // Someone just lost - determine winner
+        if (player.gameOver && !cpu.gameOver) {
+          gameWinner = 'cpu';
+          console.log('CPU wins - Player game over first');
+        } else if (cpu.gameOver && !player.gameOver) {
+          gameWinner = 'player';
+          console.log('Player wins - CPU game over first');
+        } else if (player.gameOver && cpu.gameOver) {
+          // Both ended simultaneously, check scores
+          if (player.score > cpu.score) {
+            gameWinner = 'player';
+            console.log('Player wins - Higher score when both ended');
+          } else if (cpu.score > player.score) {
+            gameWinner = 'cpu';
+            console.log('CPU wins - Higher score when both ended');
+          } else {
+            gameWinner = 'tie';
+            console.log('Tie game - Same scores');
+          }
         }
-        console.log('Game winner set to:', window.gameWinner);
-        console.log('===========================');
       }
     }
 
@@ -637,16 +648,12 @@
       cpuMessage.className = 'message ash';      // Determine who won based on actual game outcome
       let text = 'That was something.';
       if (mode === 'vs') {
-        console.log('=== CHAT DEBUGGING ===');
-        console.log('Game winner determined as:', window.gameWinner);
+        console.log('Game winner determined as:', gameWinner);
         console.log('Final scores - Player:', player.score, 'CPU:', cpu.score);
-        console.log('Player game over:', player.gameOver);
-        console.log('CPU game over:', cpu.gameOver);
-        console.log('====================');
         
-        if (window.gameWinner === 'player') {
+        if (gameWinner === 'player') {
           text = 'Thanks for playing. That was great.';
-        } else if (window.gameWinner === 'cpu') {
+        } else if (gameWinner === 'cpu') {
           text = 'Lol. I beat you. You lost.';
         } else {
           // Tie or undefined case

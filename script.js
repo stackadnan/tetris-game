@@ -614,14 +614,28 @@
     const typingDelay = Math.random() * 2000 + 2000; // 2-4 seconds
     setTimeout(() => {
       typingIndicator.style.display = 'none';
-      
-      // Add CPU message
+        // Add CPU message
       const cpuMessage = document.createElement('div');
       cpuMessage.className = 'message ash';
       
+      // Determine who won based on actual game outcome
       let text = 'That was something.';
-      if (valence === 'Positive') text = 'Thanks for playing. That was great.';
-      if (valence === 'Negative') text = 'Lol. I beat you. You lost.';
+      if (mode === 'vs') {
+        // In vs mode, check who has higher score or who didn't game over
+        const playerWon = (player.gameOver && !cpu.gameOver) || 
+                         (!player.gameOver && cpu.gameOver && player.score >= cpu.score) ||
+                         (!player.gameOver && !cpu.gameOver && player.score > cpu.score) ||
+                         (player.gameOver && cpu.gameOver && player.score > cpu.score);
+        
+        if (playerWon) {
+          text = 'Thanks for playing. That was great.';
+        } else {
+          text = 'Lol. I beat you. You lost.';
+        }
+      } else {
+        // In solo mode, always congratulate
+        text = 'Thanks for playing. That was great.';
+      }
       
       cpuMessage.textContent = text;
       chatMessages.appendChild(cpuMessage);

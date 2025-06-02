@@ -1,16 +1,7 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
-  // Set competition level once for all rounds (only if not already set)
+  // Competition level is set by Qualtrics Survey Flow randomization
   var competition = "${e://Field(Competition)}";
-  
-  // Check if competition is not set or is empty/undefined
-  if (!competition || competition === "" || competition === "undefined" || competition.includes("${e://Field")) {
-    // Randomly assign to High or Low competition for this participant
-    competition = Math.random() < 0.5 ? "High" : "Low";
-    Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
-    console.log("Round 1: Set competition to " + competition);
-  } else {
-    console.log("Round 1: Using existing competition " + competition);
-  }
+  console.log("Round 1: Using Survey Flow competition assignment: " + competition);
   
   var valence     = "${e://Field(Seq1)}";
   var round       = 1;

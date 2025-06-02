@@ -438,6 +438,9 @@
   // Initialize scores to 0
   updateScores(0, 0);
   
+  // Track who lost first
+  let gameWinner = null;
+  
   let lastTime = performance.now();
   function gameLoop(timestamp) {
     const dt = timestamp - lastTime;
@@ -459,6 +462,32 @@
       updateScores(player.score, cpu.score);
     } else {
       updateScores(player.score, 0);
+    }
+
+    // Check for game over and determine winner
+    if (mode === 'vs' && window.cpu) {
+      if ((player.gameOver || cpu.gameOver) && gameWinner === null) {
+        // Someone just lost - determine winner
+        if (player.gameOver && !cpu.gameOver) {
+          gameWinner = 'cpu';
+          console.log('CPU wins - Player game over first');
+        } else if (cpu.gameOver && !player.gameOver) {
+          gameWinner = 'player';
+          console.log('Player wins - CPU game over first');
+        } else if (player.gameOver && cpu.gameOver) {
+          // Both ended simultaneously, check scores
+          if (player.score > cpu.score) {
+            gameWinner = 'player';
+            console.log('Player wins - Higher score when both ended');
+          } else if (cpu.score > player.score) {
+            gameWinner = 'cpu';
+            console.log('CPU wins - Higher score when both ended');
+          } else {
+            gameWinner = 'tie';
+            console.log('Tie game - Same scores');
+          }
+        }
+      }
     }
 
     if (mode === 'solo') {
@@ -616,19 +645,19 @@
       typingIndicator.style.display = 'none';
         // Add CPU message
       const cpuMessage = document.createElement('div');
-      cpuMessage.className = 'message ash';
-        // Determine who won based on actual game outcome
+      cpuMessage.className = 'message ash';      // Determine who won based on actual game outcome
       let text = 'That was something.';
       if (mode === 'vs') {
-        // In vs mode, check who has higher score or who didn't game over
-        const playerWon = (!player.gameOver && cpu.gameOver) || 
-                         (player.gameOver && cpu.gameOver && player.score > cpu.score) ||
-                         (!player.gameOver && !cpu.gameOver && player.score > cpu.score);
+        console.log('Game winner determined as:', gameWinner);
+        console.log('Final scores - Player:', player.score, 'CPU:', cpu.score);
         
-        if (playerWon) {
+        if (gameWinner === 'player') {
           text = 'Thanks for playing. That was great.';
-        } else {
+        } else if (gameWinner === 'cpu') {
           text = 'Lol. I beat you. You lost.';
+        } else {
+          // Tie or undefined case
+          text = 'That was something.';
         }
       } else {
         // In solo mode, always congratulate

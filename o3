@@ -1,0 +1,26 @@
+Qualtrics.SurveyEngine.addOnReady(function() {
+  var competition = "${e://Field(Competition)}";
+  var valence     = "${e://Field(Seq3)}";
+  var round       = 3;
+
+  var qid = this.questionId;
+  var html = ''
+    + '<div style="font-family:sans-serif;max-width:800px;margin:0 auto;">'
+    +   '<h3>Tetris vs CPU (' + competition + ' Competition) — Round 3</h3>'
+    +   '<p>Use A/← = Left; D/→ = Right; S/↓ = Soft Drop; Shift = Rotate; Space = Hard Drop; C = Hold.</p>'
+    +   '<iframe id="gameFrame" '
+    +     'src="https://rawcdn.githack.com/jxmis0n/TetrisExperiment/main/index.html'
+    +       '?competition=' + competition
+    +       '&valence='     + valence
+    +       '&round='       + round + '" '
+    +     'width="800" height="900" frameborder="0"></iframe>'
+    + '</div>';
+  jQuery("#" + qid + " .QuestionText").html(html);
+
+  window.addEventListener("message", function(evt) {
+    var d = evt.data;
+    if(!d || d.type !== "chatResponse" || d.round !== round) return;
+    Qualtrics.SurveyEngine.setEmbeddedData("ChatResponse" + round, d.text);
+    jQuery("#NextButton").click();
+  });
+});

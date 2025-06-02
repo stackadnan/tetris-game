@@ -489,136 +489,81 @@
     box.appendChild(playAgain);
     document.body.appendChild(box);
   }
-  // Show chat interface after game ends
-  function showChat() {
-    const chatInterface = document.getElementById('chatInterface');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
-    const chatClose = document.getElementById('chatClose');
-    const chatTitle = document.getElementById('chatTitle');
-    
-    // Update chat title with actual CPU name
-    chatTitle.textContent = `Chat with ${cpuName}`;
-    
-    // Show the chat interface
-    chatInterface.style.display = 'flex';
-    
-    // Show typing indicator initially
-    typingIndicator.style.display = 'flex';
-    
-    // Simulate typing delay (2-4 seconds)
-    const typingDelay = 2000 + Math.random() * 2000;
-    
-    setTimeout(() => {
-      // Hide typing indicator
-      typingIndicator.style.display = 'none';
-      
-      // Create and show Ash's message
-      const ashMessage = document.createElement('div');
-      ashMessage.className = 'message ash';
-      
-      // Select message based on valence and game outcome
-      let text = 'That was something.';
-      if (valence === 'Positive') {
-        text = 'Thanks for playing. That was great!';
-      } else if (valence === 'Negative') {
-        const playerWon = !player.gameOver || (mode === 'vs' && window.cpu && cpu.gameOver && !player.gameOver);
-        if (playerWon) {
-          text = 'Nice job! You got me that time.';
-        } else {
-          text = 'Lol. I beat you. You lost.';
-        }
-      }
-      
-      ashMessage.textContent = text;
-      chatMessages.appendChild(ashMessage);
-      
-      // Scroll to bottom
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      
-      // Enable input
-      messageInput.disabled = false;
-      sendButton.disabled = false;
-      messageInput.focus();
-      
-    }, typingDelay);
-    
-    // Handle sending messages
-    function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-      
-      // Add player message
-      const playerMessage = document.createElement('div');
-      playerMessage.className = 'message player';
-      playerMessage.textContent = text;
-      chatMessages.appendChild(playerMessage);
-      
-      // Clear input
-      messageInput.value = '';
-      
-      // Scroll to bottom
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      
-      // Send to parent window if in iframe
-      if (window.parent !== window) {
-        window.parent.postMessage({
-          type: 'chatResponse',
-          round: round,
-          valence: valence,
-          text: text
-        }, '*');
-      }
-      
-      // Disable input after sending
-      messageInput.disabled = true;
-      sendButton.disabled = true;
-      
-      // Show Ash's response after a delay
-      setTimeout(() => {
-        const responses = [
-          'Interesting!',
-          'I see.',
-          'Fair enough.',
-          'That makes sense.',
-          'Good point!',
-          'Thanks for sharing.',
-          'I appreciate that.',
-          'Cool!'
-        ];
-        
-        const response = responses[Math.floor(Math.random() * responses.length)];
-        const ashReply = document.createElement('div');
-        ashReply.className = 'message ash';
-        ashReply.textContent = response;
-        chatMessages.appendChild(ashReply);
-        
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Re-enable input for continued conversation
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-        messageInput.focus();
-        
-      }, 1000 + Math.random() * 2000);
+
+  // Show chat box and post response
+ function showChat() {
+  const box = document.createElement('div');
+  Object.assign(box.style, {
+    position: 'absolute',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    transformOrigin: 'center',
+    background: 'linear-gradient(135deg, #1e1e2f, #2e2e5e)',
+    padding: '20px',
+    borderRadius: '12px',
+    zIndex: '999',
+    fontFamily: 'Arial, sans-serif',
+    color: '#fff',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+    minWidth: '280px',
+    textAlign: 'center'
+  });
+
+  const msg = document.createElement('div');
+  let text = 'That was something.';
+  if (valence === 'Positive') text = 'Thanks for playing. That was great.';
+  if (valence === 'Negative') text = 'Lol. I beat you. You lost.';
+  msg.textContent = cpuName + ': ' + text;
+  msg.style.marginBottom = '12px';
+  msg.style.fontSize = '16px';
+  msg.style.lineHeight = '1.4';
+  msg.style.fontWeight = '500';
+
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.placeholder = 'Your response…';
+    Object.assign(inp.style, {
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    border: '1px solid #555',
+    fontSize: '14px',
+    fontFamily: 'inherit',
+    backgroundColor: '#f0f0f0',
+    color: '#000',
+    outline: 'none',
+    transition: 'border 0.2s ease, box-shadow 0.2s ease',
+    boxSizing: 'border-box'
+    });
+
+
+  inp.addEventListener('focus', () => {
+    inp.style.border = '1px solid #3399ff';
+  });
+
+  inp.addEventListener('blur', () => {
+    inp.style.border = '1px solid #555';
+  });
+
+  box.appendChild(msg);
+  box.appendChild(inp);
+  document.body.appendChild(box);
+  inp.focus();
+
+  inp.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      window.parent.postMessage({
+        type: 'chatResponse',
+        round: round,
+        valence: valence,
+        text: this.value.trim()
+      }, '*');
+      this.disabled = true;
+      this.style.opacity = '0.5';
     }
-    
-    // Event listeners
-    sendButton.addEventListener('click', sendMessage);
-    
-    messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !messageInput.disabled) {
-        sendMessage();
-      }
-    });
-    
-    chatClose.addEventListener('click', () => {
-      chatInterface.style.display = 'none';
-    });
-  }
+  });
+}
 
 
   // Desktop keyboard controls

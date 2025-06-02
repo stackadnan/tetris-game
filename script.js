@@ -274,11 +274,10 @@
             if (mat[rr][cc]) g[y+rr][x+cc] = 1;
           }
           const lines = 20 - g.filter(rw=>rw.every(v=>v!==0)).length;
-          let score;
-          if (competition === 'high') {
+          let score;          if (competition === 'high') {
             // High competition: Perfect AI, maximize line clears, avoid holes, flat surface
             score = aggregateHeight(g) * 0.2
-                  + countHoles(g) * 10.0      // Extreme penalty for holes
+                  + countHoles(g) * 50.0      // Massive penalty for holes - avoid at all costs
                   + bumpiness(g) * 1.0        // Strong penalty for uneven surface
                   - lines * 100               // Maximize line clears
                   - (lines >= 4 ? 200 : 0);   // Huge bonus for Tetris

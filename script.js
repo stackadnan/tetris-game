@@ -338,13 +338,7 @@
         if (this.readyTimer >= this.readyDelay) this.ready = true;
         else return;
       }
-      if (this.gameOver) {
-        // Award minimum score if CPU loses with 0 points
-        if (this.mode === 'cpu' && this.score === 0) {
-          this.score = 100;
-        }
-        return;
-      }
+      if (this.gameOver) return;
       
       this.acc += dt;
       if (this.acc > this.dropInterval) {
@@ -456,8 +450,6 @@
       if (!player.gameOver && !cpu.gameOver) {
         requestAnimationFrame(gameLoop);
       } else {
-        // Ensure final scores are updated after game over
-        updateScores(player.score, cpu.score);
         showChat();
       }
     }

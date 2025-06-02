@@ -456,6 +456,8 @@
       if (!player.gameOver && !cpu.gameOver) {
         requestAnimationFrame(gameLoop);
       } else {
+        // Ensure final scores are updated after game over
+        updateScores(player.score, cpu.score);
         showChat();
       }
     }

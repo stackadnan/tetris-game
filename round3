@@ -1,7 +1,20 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
-  // Competition level was set by Qualtrics Survey Flow in Round 1
   var competition = "${e://Field(Competition)}";
-  console.log("Round 3: Using Survey Flow competition assignment: " + competition);
+  // Always use embedded data set in round 1
+  if (competition !== "High" && competition !== "Low") {
+    // Try to get from embedded data (should have been set in round 1)
+    competition = Qualtrics.SurveyEngine.getEmbeddedData("Competition");
+    if (competition !== "High" && competition !== "Low") {
+      // Fallback: randomize and set for all rounds
+      competition = Math.random() < 0.5 ? "High" : "Low";
+      Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
+      console.log("Competition fallback assigned in round 3:", competition);
+    } else {
+      console.log("Competition loaded from embedded data in round 3:", competition);
+    }
+  } else {
+    console.log("Competition from Qualtrics in round 3:", competition);
+  }
   
   var valence     = "${e://Field(Seq3)}";
   var round       = 3;
@@ -15,8 +28,9 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   var html = ''
     + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Tetris vs CPU (' + competition.toUpperCase() + ' Competition) — Round 3'
-    +   '</h3>'    +   '<iframe '
+    +     'Tetris vs CPU ('+competition+' Competition)'
+    +   '</h3>'
+    +   '<iframe '
     +     'src="' + src + '" '
     +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
     +     'allowfullscreen>'

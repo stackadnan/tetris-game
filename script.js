@@ -141,14 +141,14 @@
         // Adjust CPU difficulty based on competition level
       if (mode === 'cpu') {
         if (competition === 'high') {
-          this.readyDelay = Math.random() * 50 + 25; // Very fast start (25-75ms)
-          this.dropInterval = 80; // Extremely fast drops
-          this.moveInterval = 100; // Very fast moves
+          this.readyDelay = Math.random() * 30 + 10; // Even faster start (10-40ms)
+          this.dropInterval = 50; // Even faster drops
+          this.moveInterval = 60; // Even faster moves
           this.skillLevel = 'expert'; // Expert AI
         } else {
-          this.readyDelay = Math.random() * 1500 + 2000; // Very slow start (2-3.5s)
-          this.dropInterval = 2000; // Very slow drops
-          this.moveInterval = 1800; // Very slow moves
+          this.readyDelay = Math.random() * 2000 + 2500; // Even slower start (2.5-4.5s)
+          this.dropInterval = 2500; // Even slower drops
+          this.moveInterval = 2200; // Even slower moves
           this.skillLevel = 'beginner'; // Beginner AI
         }
       } else {
@@ -198,8 +198,13 @@
         this.score += L*100;
         // Only add garbage in high competition mode and vs mode
         if (mode === 'vs' && competition === 'high') {
-          this.garbage += L;
-          console.log(`${this.mode} cleared ${L} lines, added ${L} garbage. Total garbage: ${this.garbage}`);
+          // Send more garbage: 2x lines cleared
+          this.garbage += L * 2;
+          console.log(`${this.mode} cleared ${L} lines, added ${L*2} garbage. Total garbage: ${this.garbage}`);
+        }
+        // In low competition, do not send garbage
+        if (mode === 'vs' && competition === 'low') {
+          this.garbage = 0;
         }
         if (L >= 4) triggerTetrisAlert();
       }
@@ -256,7 +261,6 @@
     }    planCPU() {
       let best = competition === 'high' ? Infinity : -Infinity;
       let plan = {};
-      
       for (let r=0; r<this.shape.length; r++) {
         const mat = this.shape[r];
         const w = mat[0].length;
@@ -265,31 +269,27 @@
           while (this.valid(mat,x,y)) y++;
           y--;
           if (y<0) continue;
-          
           const g = this.grid.map(row=>row.slice());
           for (let rr=0; rr<mat.length; rr++) for (let cc=0; cc<mat[rr].length; cc++) {
             if (mat[rr][cc]) g[y+rr][x+cc] = 1;
           }
-          
           const lines = 20 - g.filter(rw=>rw.every(v=>v!==0)).length;
           let score;
-          
           if (competition === 'high') {
-            // High competition: Expert AI - highly optimized play
-            score = aggregateHeight(g) * 0.4
-                  + countHoles(g) * 3.0      // Heavy penalty for holes
-                  + bumpiness(g) * 0.6       // Penalty for uneven surface
-                  - lines * 40               // Heavy bonus for clearing lines
-                  - (lines >= 4 ? 50 : 0);   // Extra bonus for Tetris
+            // High competition: Perfect AI, maximize line clears, avoid holes, flat surface
+            score = aggregateHeight(g) * 0.2
+                  + countHoles(g) * 10.0      // Extreme penalty for holes
+                  + bumpiness(g) * 1.0        // Strong penalty for uneven surface
+                  - lines * 100               // Maximize line clears
+                  - (lines >= 4 ? 200 : 0);   // Huge bonus for Tetris
           } else {
-            // Low competition: Deliberately poor AI
-            score = -aggregateHeight(g) * 0.2  // Actually prefers tall stacks
-                  - countHoles(g) * 0.3        // Doesn't mind holes much
-                  + bumpiness(g) * 1.2         // Prefers very bumpy surfaces
-                  + lines * 2                  // Very small bonus for lines
-                  + Math.random() * 10;        // Add randomness for mistakes
+            // Low competition: Bad AI, prefers holes, avoids line clears, random
+            score = -aggregateHeight(g) * 0.1   // Likes tall stacks
+                  - countHoles(g) * 0.1         // Likes holes
+                  + bumpiness(g) * 2.0          // Likes bumpy
+                  + lines * 5                   // Small bonus for lines
+                  + Math.random() * 50;         // High randomness for mistakes
           }
-          
           if ((competition === 'high' && score < best) || 
               (competition === 'low' && score > best)) {
             best = score;
@@ -297,16 +297,20 @@
           }
         }
       }
-      
-      // In low competition, sometimes make completely random moves
-      if (competition === 'low' && Math.random() < 0.3) {
-        const randomRot = Math.floor(Math.random() * this.shape.length);
-        const randomMat = this.shape[randomRot];
-        const maxX = 10 - randomMat[0].length;
-        const randomX = Math.floor(Math.random() * (maxX + 1));
-        plan = {rot: randomRot, x: randomX, y: 0};
+      // In low competition, often make completely random or bad moves, or skip move
+      if (competition === 'low') {
+        if (Math.random() < 0.5) {
+          // 50% chance: random move
+          const randomRot = Math.floor(Math.random() * this.shape.length);
+          const randomMat = this.shape[randomRot];
+          const maxX = 10 - randomMat[0].length;
+          const randomX = Math.floor(Math.random() * (maxX + 1));
+          plan = {rot: randomRot, x: randomX, y: 0};
+        } else if (Math.random() < 0.3) {
+          // 15% chance: skip move (do nothing)
+          plan = {rot: this.rot, x: this.x, y: this.y};
+        }
       }
-      
       this.cpuPlan = plan;
       console.log(`CPU (${competition}): Planned move - rot:${plan.rot}, x:${plan.x}, score:${best}`);
     }receiveGarbage(rows) {
@@ -351,13 +355,15 @@
           } else if (this.x > this.cpuPlan.x) {
             this.move(-1,0);
           } else {
-            // In high competition, use hard drop for speed and efficiency
+            // In high competition, always hard drop for speed and efficiency
             if (competition === 'high') {
               this.hardDrop();
             } else {
-              // In low competition, sometimes miss the timing
-              if (Math.random() < 0.8) {
-                this.move(0,1); // Regular move down instead of hard drop
+              // In low competition, sometimes skip dropping or just move down
+              if (Math.random() < 0.5) {
+                // 50% chance: do nothing (skip turn)
+              } else if (Math.random() < 0.8) {
+                this.move(0,1); // Regular move down
               }
             }
           }

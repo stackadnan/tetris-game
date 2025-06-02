@@ -1,22 +1,13 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
-  // Competition level is set by Qualtrics Survey Flow randomization
   var competition = "${e://Field(Competition)}";
-  
-  // Debug: Check if Survey Flow set the competition properly
-  console.log("Raw competition field value:", competition);
-  console.log("Competition field type:", typeof competition);
-  console.log("Competition includes ${e://Field:", competition.includes("${e://Field"));
-  
-  // If Survey Flow didn't set competition properly, add fallback randomization
-  if (!competition || competition === "" || competition === "undefined" || competition.includes("${e://Field")) {
-    // Fallback: Randomly assign to High or Low competition
+  // Fallback: If not High/Low, randomize and set embedded data
+  if (competition !== "High" && competition !== "Low") {
     competition = Math.random() < 0.5 ? "High" : "Low";
     Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
-    console.log("Round 1: Survey Flow failed - using fallback randomization:", competition);
+    console.log("Competition fallback assigned:", competition);
   } else {
-    console.log("Round 1: Using Survey Flow competition assignment:", competition);
+    console.log("Competition from Qualtrics:", competition);
   }
-  
   var valence     = "${e://Field(Seq1)}";
   var round       = 1;
   var qid         = this.questionId;
@@ -26,10 +17,11 @@ Qualtrics.SurveyEngine.addOnReady(function() {
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
     + "&round="       + round;
+
   var html = ''
     + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Tetris vs CPU (' + competition.toUpperCase() + ' Competition) — Round 1'
+    +     'Tetris vs CPU ('+competition+' Competition)'
     +   '</h3>'
     +   '<iframe '
     +     'src="' + src + '" '

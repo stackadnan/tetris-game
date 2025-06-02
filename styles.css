@@ -1,0 +1,840 @@
+/* Reset and Base Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 75%;
+  height: 75%;
+  overflow: hidden;
+  background: #ddd;
+  color: #111;
+  font-family: Arial, sans-serif;
+}
+
+/* Loading Overlay */
+#loadingOverlay {
+  position: absolute; inset: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+#loadingText {
+  font-size: 24px;
+  margin-bottom: 12px;
+  color: #fff;
+  text-shadow: 0 0 8px #00ff00;
+}
+#loadingBarBg {
+  width: 80%;
+  height: 16px;
+  background: #444;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#loadingBarFg {
+  width: 0;
+  height: 100%;
+  background: limegreen;
+  transition: width 4s linear;
+}
+
+/* Countdown Overlay */
+#countdownOverlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  visibility: hidden;
+  z-index: 90;
+}
+
+/* Score Bar */
+#scoreBars {
+  position: absolute; top: 0; left: 0; right: 0;
+  background: #111;
+  padding: 8px;
+  text-align: center;
+  z-index: 80;
+}
+.pill {
+  display: inline-block;
+  margin: 0 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.pill.blue   { background: navy; }
+.pill.red    { background: maroon; }
+.pill.purple { background: indigo; }
+
+/* Lead Text Animation */
+#leadText {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  font-size: 32px;
+  color: hotpink;
+  text-shadow: 0 0 8px deeppink;
+  display: none;
+  z-index: 85;
+  animation: shake 0.1s infinite alternate;
+}
+@keyframes shake {
+  from { transform: translate(-52%, -48%) rotate(-10deg); }
+  to   { transform: translate(-48%, -52%) rotate(-10deg); }
+}
+
+/* Game Area */
+#tetrisWrapper {
+  position: absolute;
+  top: 120px; bottom: 160px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px;
+}
+canvas {
+  background: #000;
+  width: 100%; max-width: 300px;
+  height: auto;
+  box-shadow: 0 0 6px rgba(255,255,255,0.2);
+  touch-action: none;
+}
+canvas.player { border: 3px solid blue; }
+canvas.cpu    { border: 3px solid red; }
+
+/* Controls */
+#controls {
+  position: absolute;
+  left: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  z-index: 10;
+}
+#controls .hold-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #111;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+#holdBox {
+  width: 80px;
+  height: 80px;
+  /* border: 2.5px solid #111; */
+  background: #000000;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#holdBox canvas {
+  width: 64px;
+  height: 64px;
+}
+#holdButton {
+  width: 64px;
+  height: 48px;
+  margin-bottom: 12px;
+  background: #222;
+  color: #fff;
+  border: 3px solid #111;
+  border-radius: 8px;
+  box-shadow: 0 4px #111, 0 6px 12px rgba(0,0,0,0.5), inset 0 1px 0 #fff2;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-shadow: 0 1px 0 #000, 0 0 2px #fff8;
+  letter-spacing: 1px;
+  padding: 0;
+}
+.moveButtons {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  justify-content: center;
+}
+.moveButtons button {
+  width: 56px;
+  height: 56px;
+  font-size: 1.3rem;
+  background: #222;
+  color: #fff;
+  border: 3px solid #111;
+  border-radius: 8px;
+  box-shadow: 0 4px #111, 0 6px 12px rgba(0,0,0,0.5), inset 0 1px 0 #fff2;
+  font-weight: bold;
+  text-shadow: 0 1px 0 #000, 0 0 2px #fff8;
+  padding: 0;
+}
+#rotateButton {
+  width: 120px;
+  height: 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: #222;
+  color: #fff;
+  border: 3px solid #111;
+  border-radius: 8px;
+  box-shadow: 0 4px #111, 0 6px 12px rgba(0,0,0,0.5), inset 0 1px 0 #fff2;
+  margin-bottom: 12px;
+  text-shadow: 0 1px 0 #000, 0 0 2px #fff8;
+  letter-spacing: 1px;
+  padding: 0;
+}
+#dropButton {
+  width: 220px;
+  height: 48px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(to bottom, #444 0%, #111 100%);
+  color: #fff;
+  border: 3px solid #111;
+  border-radius: 10px;
+  box-shadow: 0 6px #111, 0 10px 18px rgba(0,0,0,0.6), inset 0 2px 0 #fff2;
+  margin-bottom: 0;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 0 #000, 0 0 2px #fff8;
+  padding: 0;
+}
+button:active, #controls button:active {
+  background: #111;
+  box-shadow: 0 2px #000, 0 2px 4px rgba(0,0,0,0.6), inset 0 2px 4px #0008;
+}
+
+/* Mobile Controls (hidden by default) */
+#mobileControls {
+  display: none;
+}
+
+/* Alert */
+#tetrisOverlay {
+  position: absolute;
+  top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  color: yellow;
+  text-shadow: 0 0 8px orange;
+  display: none;
+  z-index: 85;
+}
+
+/* Solo Mode Instructions */
+#soloInstructions {
+  display: none;
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 320px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 3px solid #495057;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+  font-family: Arial, sans-serif;
+}
+
+#soloInstructions h2 {
+  margin: 0 0 20px 0;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #212529;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+  letter-spacing: 0.5px;
+}
+
+.instruction-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.6);
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.key-icon {
+  min-width: 60px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #343a40;
+  color: #fff;
+  border: 2px solid #495057;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 3px #212529, 0 4px 8px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 0 #000;
+}
+
+.instruction-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  flex: 1;
+}
+
+.goal-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #6c757d;
+  text-align: center;
+  margin: 0;
+  padding: 16px;
+  background: rgba(108,117,125,0.1);
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+/* Solo Mode Layout */
+body.solo-mode #scoreBarVertical,
+body.solo-mode #cpuCanvas,
+body.solo-mode #scoreBars .pill.red,
+body.solo-mode #scoreBars .pill.purple {
+  display: none !important;
+}
+
+body.solo-mode #tetrisWrapper {
+  justify-content: flex-start;
+  padding-left: 200px;
+}
+
+body.solo-mode #soloInstructions {
+  display: block;
+}
+
+body.solo-mode #playerCanvas {
+  max-width: 350px;
+}
+
+body.solo-mode #scoreBars {
+  text-align: left;
+  padding-left: 200px;
+}
+
+/* Vertical Score Bars */
+#scoreBarVertical {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 70px;
+  margin: 0 16px;
+  height: 100%; /* Match parent height for alignment */
+}
+.score-bar-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 18px;
+  height: 100%;
+}
+.score-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: space-between;
+}
+.score-bar {
+  width: 2.5vw;
+  min-width: 18px;
+  max-width: 36px;
+  height: 60vh;
+  min-height: 180px;
+  max-height: 600px;
+  border-radius: 999px;
+  margin: 0;
+  background: #f0f0f0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.score-bar-inner {
+  width: 100%;
+  border-radius: 999px 999px 0 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transition: height 0.5s cubic-bezier(.4,2,.6,1);
+  z-index: 1;
+}
+.score-bar.player .score-bar-inner {
+  background: #3b82f6;
+}
+.score-bar.cpu .score-bar-inner {
+  background: #dc2626;
+}
+.score-label {
+  font-size: clamp(1.2rem, 2.5vw, 2.4rem);
+  font-family: 'Arial Black', Impact, Arial, sans-serif;
+  font-weight: 900;
+  color: #222;
+  text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 0 8px #fff;
+  letter-spacing: 1px;
+  line-height: 1;
+  text-align: center;
+  margin-bottom: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  min-width: 0;
+  box-shadow: none;
+  border-radius: 0;
+  position: static;
+}
+.score-bar.player .score-label {
+  color: #3b82f6;
+}
+.score-bar.cpu .score-label {
+  color: #dc2626;
+}
+.score-name-player, .score-name-cpu {
+  font-size: clamp(0.5rem, 0.8vw, 0.7rem);
+  font-family: 'Arial Black', Impact, Arial, sans-serif;
+  font-weight: 900;
+  text-align: center;
+  width: 3vw;
+  min-width: 32px;
+  max-width: 70px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  flex-shrink: 0;
+  color: #333;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.8);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  #controls {
+    left: 16px;
+    gap: 12px;
+  }
+  #controls .hold-label {
+    font-size: 0.9rem;
+  }
+  #holdBox {
+    width: 60px;
+    height: 60px;
+  }
+  #holdBox canvas {
+    width: 48px;
+    height: 48px;
+  }
+  #holdButton {
+    width: 56px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  .moveButtons button {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+  }
+  #rotateButton {
+    width: 100px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  #dropButton {
+    width: 180px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  #scoreBarVertical {
+    margin: 0 1vw; /* Use viewport width for margin */
+    min-width: clamp(40px, 5vw, 60px); /* Responsive min-width */
+    height: 100%; /* Ensure it takes full height of its container part in tetrisWrapper */
+  }
+  .score-bar {
+    width: clamp(16px, 2vw, 24px); /* Responsive width */
+    height: clamp(100px, 30vh, 250px); /* Responsive height */
+    /* border-radius: 999px; */ /* Already in base, inherited */
+  }
+  .score-label {
+    font-size: clamp(1rem, 1.8vw, 1.5rem); /* Responsive font size */
+    /* Remove properties that create a box or misalign */
+    /* top: -50px; */ /* Removed */
+    /* padding: 3px 8px; */ /* Removed */
+    /* Base styles for no-box look are inherited: background: none, border: none, padding: 0, etc. */
+  }
+  .score-name-player, .score-name-cpu {
+    font-size: clamp(0.5rem, 0.8vw, 0.7rem); /* Responsive font size */
+    width: clamp(32px, 4vw, 70px); /* Responsive width */
+    /* font-weight, letter-spacing, text-shadow are fine */
+  }
+  .score-bar-container {
+    gap: clamp(8px, 1.5vw, 12px); /* Responsive gap */
+  }
+
+  /* Solo Mode Tablet */
+  body.solo-mode #tetrisWrapper {
+    padding-left: 140px;
+  }
+  
+  body.solo-mode #soloInstructions {
+    right: 20px;
+    width: 280px;
+    padding: 20px;
+  }
+  
+  body.solo-mode #soloInstructions h2 {
+    font-size: 1.4rem;
+  }
+  
+  body.solo-mode .instruction-item {
+    padding: 6px 10px;
+    gap: 12px;
+  }
+  
+  body.solo-mode .key-icon {
+    min-width: 50px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+  
+  body.solo-mode .instruction-text {
+    font-size: 0.9rem;
+  }
+  
+  body.solo-mode .goal-text {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+  
+  body.solo-mode #scoreBars {
+    padding-left: 140px;
+  }
+}
+
+@media (max-width: 400px) {
+  #tetrisWrapper {
+    gap: 6px;
+    bottom: 180px;
+  }
+  #mobileControls {
+    bottom: 6px;
+    padding: 10px;
+    gap: 6px;
+    width: 90%;
+    max-width: 320px;
+  }
+  #mobileControls button {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  #mobileControls button[data-cmd="hardDrop"] {
+    width: 220px;
+    font-size: 0.8rem;
+  }
+  #mobileControls button[data-cmd="hold"] {
+    width: 75px;
+    font-size: 0.7rem;
+  }
+  #mobileControls button[data-cmd="rotate"] {
+    width: 90px;
+    font-size: 0.6rem;
+  }  #scoreBarVertical {
+    height: 280px;
+    min-width: 80px;
+  }
+  .score-bar {
+    width: 18px;
+    height: 220px;
+  }.score-label {
+    font-size: 1.2rem;
+    top: -35px;
+    padding: 2px 6px;
+  }
+  .score-name-player, .score-name-cpu {
+    font-size: 0.6rem;
+    width: 28px;
+  }
+  canvas {
+    max-width: 10px;
+  }
+  #mobileInstructions {
+    top: 65px;
+    width: 90px;
+    font-size: 0.7rem;
+    right: 6px;
+  }
+  
+  #mobileHoldBox {
+    top: 10px;
+    width: 70px;
+    height: 70px;
+    font-size: 0.6rem;
+    right: 0px;
+  }
+}
+
+/* Mobile Layout - Restructure for mobile devices */
+@media (max-width: 600px) {
+  /* Show horizontal score pills, hide vertical bars */
+  #scoreBars {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: #111;
+    padding: clamp(8px, 2vw, 16px);
+    justify-content: center;
+    align-items: center;
+    gap: clamp(8px, 3vw, 16px);
+    z-index: 100;
+    height: auto;
+    min-height: clamp(50px, 12vw, 70px);
+    box-sizing: border-box;
+  }
+  
+  #scoreBarVertical {
+    display: none !important;
+  }
+  
+  .pill {
+    padding: clamp(6px, 2vw, 12px) clamp(12px, 4vw, 20px);
+    font-size: clamp(14px, 4vw, 18px);
+    border-radius: clamp(16px, 4vw, 24px);
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    min-width: clamp(120px, 35vw, 180px);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  
+  /* Vertical canvas stacking */
+  #tetrisWrapper {
+    position: fixed;
+    top: clamp(60px, 15vw, 90px);
+    bottom: clamp(180px, 45vw, 220px);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(12px, 3vw, 20px);
+    padding: clamp(8px, 2vw, 16px);
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  
+  /* Stack canvases vertically */
+  canvas {
+    width: 100%;
+    max-width: clamp(280px, 70vw, 350px);
+    height: auto;
+    aspect-ratio: 1/2; /* Maintain 1:2 aspect ratio */
+    touch-action: manipulation;
+  }
+  
+  #playerCanvas {
+    order: 1;
+    margin-bottom: clamp(8px, 2vw, 12px);
+  }
+  
+  #cpuCanvas {
+    order: 2;
+    max-width: clamp(240px, 60vw, 300px); /* Slightly smaller than player */
+  }
+  
+  /* Hide desktop controls completely */
+  #controls {
+    display: none !important;
+  }
+  
+  /* Show and style mobile controls */
+  #mobileControls {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 10px;
+    right: 0;
+    /* background: rgba(0, 0, 0, 0); */
+    padding: clamp(12px, 3vw, 20px);
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(8px, 2vw, 12px);
+    z-index: 90;
+    /* border-top: 2px solid #333; */
+    /* box-sizing: border-box; */
+  }
+  
+  .mobile-control-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(8px, 2vw, 12px);
+    width: 100%;
+    max-width: clamp(320px, 80vw, 400px);
+  }
+  
+  #mobileControls button {
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    color: #fff;
+    border: 2px solid #444;
+    border-radius: clamp(8px, 2vw, 12px);
+    font-weight: bold;
+    font-size: clamp(12px, 3.5vw, 16px);
+    padding: clamp(8px, 2vw, 12px);
+    min-height: clamp(44px, 12vw, 60px);
+    box-shadow: 
+      0 4px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    transition: all 0.15s ease;
+    touch-action: manipulation;
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #mobileControls button:active {
+    background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+    box-shadow: 
+      0 2px 4px rgba(0,0,0,0.5),
+      inset 0 2px 4px rgba(0,0,0,0.3);
+    transform: translateY(2px);
+  }
+  
+  /* Specific button sizes */
+  #mobileControls button[data-cmd="moveLeft"],
+  #mobileControls button[data-cmd="moveDown"],
+  #mobileControls button[data-cmd="moveRight"] {
+    width: clamp(60px, 15vw, 80px);
+    flex: 0 0 auto;
+  }
+  
+  #mobileControls button[data-cmd="hold"] {
+    width: clamp(100px, 25vw, 140px);
+    font-size: clamp(10px, 3vw, 14px);
+  }
+  
+  #mobileControls button[data-cmd="rotate"] {
+    width: clamp(140px, 35vw, 180px);
+    font-size: clamp(10px, 3vw, 14px);
+  }
+  
+  #mobileControls button[data-cmd="hardDrop"] {
+    width: clamp(200px, 50vw, 280px);
+    font-size: clamp(12px, 3.5vw, 16px);
+    background: linear-gradient(145deg, #444, #222);
+    border-color: #666;
+  }
+  
+  #mobileControls button[data-cmd="hardDrop"]:active {
+    background: linear-gradient(145deg, #222, #000);
+  }
+  
+  /* Mobile instructions and hold box */
+  #mobileInstructions {
+    position: fixed;
+    top: clamp(100px, 25vw, 140px);
+    right: clamp(8px, 2vw, 16px);
+    width: clamp(80px, 20vw, 120px);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: clamp(6px, 1.5vw, 10px);
+    border-radius: clamp(6px, 1.5vw, 10px);
+    font-size: clamp(8px, 2.5vw, 12px);
+    font-weight: bold;
+    text-align: center;
+    z-index: 0;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+  
+  #mobileHoldBox {
+    position: fixed;
+    top: clamp(180px, 40vw, 220px);
+    right: clamp(8px, 2vw, 16px);
+    width: clamp(70px, 18vw, 100px);
+    height: clamp(70px, 18vw, 100px);
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    border: 2px solid #444;
+    border-radius: clamp(8px, 2vw, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(6px, 2vw, 10px);
+    font-weight: bold;
+    text-align: center;
+    z-index: 80;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  
+  /* Solo mode adjustments for mobile */
+  body.solo-mode #tetrisWrapper {
+    padding-left: 0;
+    align-items: center;
+  }
+  
+  body.solo-mode #scoreBars {
+    padding-left: 0;
+    justify-content: center;
+  }
+  
+  body.solo-mode #soloInstructions {
+    display: none; /* Hide on mobile for space */
+  }
+  
+  /* Responsive text sizing */
+  #leadText {
+    font-size: clamp(18px, 6vw, 28px);
+    top: clamp(120px, 30vw, 160px);
+  }
+  
+  #tetrisOverlay {
+    font-size: clamp(24px, 8vw, 36px);
+    top: clamp(140px, 35vw, 180px);
+  }
+  
+  #countdownOverlay {
+    font-size: clamp(60px, 20vw, 96px);
+  }
+}

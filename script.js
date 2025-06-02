@@ -6,6 +6,11 @@
   const mode        = params.get('mode') || 'vs'; // 'vs' or 'solo'
   const isMobile    = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
+  console.log(`Game initialized: Competition=${competition}, Round=${round}, Mode=${mode}`);
+  
+  // Add debug logging for garbage system
+  console.log('Garbage system enabled for high competition:', competition === 'high' && mode === 'vs');
+
   // --- Solo Mode Setup ---
   if (mode === 'solo') {
     document.body.classList.add('solo-mode');
@@ -116,7 +121,6 @@
     for (let i=0; i<9; i++) b += Math.abs(heights[i]-heights[i+1]);
     return b;
   }
-
   class TetrisBoard {
     constructor(id, mode) {
       this.ctx = document.getElementById(id).getContext('2d');
@@ -131,17 +135,29 @@
       this.cpuTimer = 0;
       this.ready = (mode==='human');
       this.readyTimer = 0;
-      this.readyDelay = mode==='cpu'
-        ? (competition==='high'
-           ? Math.random()*100 + 100
-           : Math.random()*500 + 500)
-        : 0;
+        // Adjust CPU difficulty based on competition level
+      if (mode === 'cpu') {
+        if (competition === 'high') {
+          this.readyDelay = Math.random() * 50 + 25; // Very fast start (25-75ms)
+          this.dropInterval = 80; // Extremely fast drops
+          this.moveInterval = 100; // Very fast moves
+          this.skillLevel = 'expert'; // Expert AI
+        } else {
+          this.readyDelay = Math.random() * 1500 + 2000; // Very slow start (2-3.5s)
+          this.dropInterval = 2000; // Very slow drops
+          this.moveInterval = 1800; // Very slow moves
+          this.skillLevel = 'beginner'; // Beginner AI
+        }
+      } else {
+        this.readyDelay = 0;
+        this.dropInterval = 500; // Player drop speed
+        this.moveInterval = 200; // Player move speed
+        this.skillLevel = 'human';
+      }
+      
       this.spawn();
-      this.dropInterval = mode==='cpu'
-        ? (competition==='high' ? 200 : 1000)
-        : 500;
       this.acc = 0;
-    }    spawn() {
+    }spawn() {
       const keys = Object.keys(SHAPES);
       let p;
       do { p = keys[Math.floor(Math.random()*keys.length)]; }
@@ -170,16 +186,19 @@
       const L = 20 - this.grid.length;
       while (this.grid.length<20) this.grid.unshift(Array(10).fill(0));
       return L;
-    }
-    lock() {
+    }    lock() {
       for (let r=0; r<this.mat.length; r++) for (let c=0; c<this.mat[r].length; c++) {
         if (this.mat[r][c]) this.grid[this.y+r][this.x+c] = this.prevShape;
       }
       const L = this.clearLines();
       if (L) {
         this.score += L*100;
-        if (competition==='high') this.garbage += L;
-        if (competition==='high' && L>=4) triggerTetrisAlert();
+        // Only add garbage in high competition mode and vs mode
+        if (mode === 'vs' && competition === 'high') {
+          this.garbage += L;
+          console.log(`${this.mode} cleared ${L} lines, added ${L} garbage. Total garbage: ${this.garbage}`);
+        }
+        if (L >= 4) triggerTetrisAlert();
       }
       this.spawn();
     }
@@ -231,9 +250,10 @@
       }
       
       this.canHold = false;
-    }
-    planCPU() {
-      let best=Infinity, plan={};
+    }    planCPU() {
+      let best = competition === 'high' ? Infinity : -Infinity;
+      let plan = {};
+      
       for (let r=0; r<this.shape.length; r++) {
         const mat = this.shape[r];
         const w = mat[0].length;
@@ -242,52 +262,103 @@
           while (this.valid(mat,x,y)) y++;
           y--;
           if (y<0) continue;
+          
           const g = this.grid.map(row=>row.slice());
           for (let rr=0; rr<mat.length; rr++) for (let cc=0; cc<mat[rr].length; cc++) {
             if (mat[rr][cc]) g[y+rr][x+cc] = 1;
           }
+          
           const lines = 20 - g.filter(rw=>rw.every(v=>v!==0)).length;
-          const score = aggregateHeight(g)
-                      + countHoles(g)*1.5
-                      + bumpiness(g)*0.5
-                      - lines*10;
-          if (score < best) {
+          let score;
+          
+          if (competition === 'high') {
+            // High competition: Expert AI - highly optimized play
+            score = aggregateHeight(g) * 0.4
+                  + countHoles(g) * 3.0      // Heavy penalty for holes
+                  + bumpiness(g) * 0.6       // Penalty for uneven surface
+                  - lines * 40               // Heavy bonus for clearing lines
+                  - (lines >= 4 ? 50 : 0);   // Extra bonus for Tetris
+          } else {
+            // Low competition: Deliberately poor AI
+            score = -aggregateHeight(g) * 0.2  // Actually prefers tall stacks
+                  - countHoles(g) * 0.3        // Doesn't mind holes much
+                  + bumpiness(g) * 1.2         // Prefers very bumpy surfaces
+                  + lines * 2                  // Very small bonus for lines
+                  + Math.random() * 10;        // Add randomness for mistakes
+          }
+          
+          if ((competition === 'high' && score < best) || 
+              (competition === 'low' && score > best)) {
             best = score;
             plan = {rot:r, x, y};
           }
         }
       }
+      
+      // In low competition, sometimes make completely random moves
+      if (competition === 'low' && Math.random() < 0.3) {
+        const randomRot = Math.floor(Math.random() * this.shape.length);
+        const randomMat = this.shape[randomRot];
+        const maxX = 10 - randomMat[0].length;
+        const randomX = Math.floor(Math.random() * (maxX + 1));
+        plan = {rot: randomRot, x: randomX, y: 0};
+      }
+      
       this.cpuPlan = plan;
-    }
-    receiveGarbage(rows) {
+      console.log(`CPU (${competition}): Planned move - rot:${plan.rot}, x:${plan.x}, score:${best}`);
+    }receiveGarbage(rows) {
+      console.log(`${this.mode} receiving ${rows} garbage rows`);
       for (let i=0; i<rows; i++) {
         this.grid.shift();
-        this.grid.push(Array(10).fill('G'));
+        // Create garbage row with random gap
+        const garbageRow = Array(10).fill('G');
+        const gapPos = Math.floor(Math.random() * 10);
+        garbageRow[gapPos] = 0; // Leave one gap
+        this.grid.push(garbageRow);
       }
-    }
-    update(dt) {
+      
+      // Check if current piece is still valid after garbage
+      if (!this.valid(this.mat, this.x, this.y)) {
+        // Try to move the piece up
+        this.y = Math.max(0, this.y - rows);
+        if (!this.valid(this.mat, this.x, this.y)) {
+          this.gameOver = true;
+        }
+      }
+    }    update(dt) {
       if (this.mode==='cpu' && !this.ready) {
         this.readyTimer += dt;
         if (this.readyTimer >= this.readyDelay) this.ready = true;
         else return;
       }
       if (this.gameOver) return;
+      
       this.acc += dt;
       if (this.acc > this.dropInterval) {
         this.acc = 0;
         if (!this.move(0,1)) this.lock();
       }
-      if (this.mode==='cpu' && this.cpuPlan) {
+        if (this.mode==='cpu' && this.cpuPlan) {
         this.cpuTimer += dt;
-        const interval = competition==='high'?200:800;
-        if (this.cpuTimer > interval) {
-          if (this.rot !== this.cpuPlan.rot) this.rotate();
-          else if (this.x < this.cpuPlan.x) this.move(1,0);
-          else if (this.x > this.cpuPlan.x) this.move(-1,0);
-          else {
-            if (competition==='high') this.hardDrop();
-            this.cpuTimer = 0;
+        if (this.cpuTimer > this.moveInterval) {
+          if (this.rot !== this.cpuPlan.rot) {
+            this.rotate();
+          } else if (this.x < this.cpuPlan.x) {
+            this.move(1,0);
+          } else if (this.x > this.cpuPlan.x) {
+            this.move(-1,0);
+          } else {
+            // In high competition, use hard drop for speed and efficiency
+            if (competition === 'high') {
+              this.hardDrop();
+            } else {
+              // In low competition, sometimes miss the timing
+              if (Math.random() < 0.8) {
+                this.move(0,1); // Regular move down instead of hard drop
+              }
+            }
           }
+          this.cpuTimer = 0;
         }
       }
     }
@@ -489,81 +560,94 @@
     box.appendChild(playAgain);
     document.body.appendChild(box);
   }
+  // Show chat interface with typing animation
+  function showChat() {
+    const chatInterface = document.getElementById('chatInterface');
+    const chatTitle = document.getElementById('chatTitle');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatClose = document.getElementById('chatClose');
 
-  // Show chat box and post response
- function showChat() {
-  const box = document.createElement('div');
-  Object.assign(box.style, {
-    position: 'absolute',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    transformOrigin: 'center',
-    background: 'linear-gradient(135deg, #1e1e2f, #2e2e5e)',
-    padding: '20px',
-    borderRadius: '12px',
-    zIndex: '999',
-    fontFamily: 'Arial, sans-serif',
-    color: '#fff',
-    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-    minWidth: '280px',
-    textAlign: 'center'
-  });
+    // Update chat title with CPU name
+    chatTitle.textContent = `Chat with ${cpuName}`;
 
-  const msg = document.createElement('div');
-  let text = 'That was something.';
-  if (valence === 'Positive') text = 'Thanks for playing. That was great.';
-  if (valence === 'Negative') text = 'Lol. I beat you. You lost.';
-  msg.textContent = cpuName + ': ' + text;
-  msg.style.marginBottom = '12px';
-  msg.style.fontSize = '16px';
-  msg.style.lineHeight = '1.4';
-  msg.style.fontWeight = '500';
+    // Show the chat interface
+    chatInterface.style.display = 'flex';
 
-  const inp = document.createElement('input');
-  inp.type = 'text';
-  inp.placeholder = 'Your response…';
-    Object.assign(inp.style, {
-    width: '100%',
-    padding: '10px 12px',
-    borderRadius: '6px',
-    border: '1px solid #555',
-    fontSize: '14px',
-    fontFamily: 'inherit',
-    backgroundColor: '#f0f0f0',
-    color: '#000',
-    outline: 'none',
-    transition: 'border 0.2s ease, box-shadow 0.2s ease',
-    boxSizing: 'border-box'
-    });
+    // Show typing indicator initially
+    typingIndicator.style.display = 'flex';
+    typingIndicator.querySelector('.typing-text').textContent = `${cpuName} is typing...`;
 
+    // After 2-4 seconds, hide typing and show message
+    const typingDelay = Math.random() * 2000 + 2000; // 2-4 seconds
+    setTimeout(() => {
+      typingIndicator.style.display = 'none';
+      
+      // Add CPU message
+      const cpuMessage = document.createElement('div');
+      cpuMessage.className = 'message ash';
+      
+      let text = 'That was something.';
+      if (valence === 'Positive') text = 'Thanks for playing. That was great.';
+      if (valence === 'Negative') text = 'Lol. I beat you. You lost.';
+      
+      cpuMessage.textContent = text;
+      chatMessages.appendChild(cpuMessage);
+      
+      // Enable input and send button
+      messageInput.disabled = false;
+      sendButton.disabled = false;
+      messageInput.focus();
+      
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, typingDelay);
 
-  inp.addEventListener('focus', () => {
-    inp.style.border = '1px solid #3399ff';
-  });
+    // Handle sending messages
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
 
-  inp.addEventListener('blur', () => {
-    inp.style.border = '1px solid #555';
-  });
+      // Add player message
+      const playerMessage = document.createElement('div');
+      playerMessage.className = 'message player';
+      playerMessage.textContent = text;
+      chatMessages.appendChild(playerMessage);
+      
+      // Clear input and disable controls
+      messageInput.value = '';
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  box.appendChild(msg);
-  box.appendChild(inp);
-  document.body.appendChild(box);
-  inp.focus();
-
-  inp.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && this.value.trim()) {
+      // Send response to parent window
       window.parent.postMessage({
         type: 'chatResponse',
         round: round,
         valence: valence,
-        text: this.value.trim()
+        text: text
       }, '*');
-      this.disabled = true;
-      this.style.opacity = '0.5';
     }
-  });
-}
+
+    // Send button click handler
+    sendButton.addEventListener('click', sendMessage);
+
+    // Enter key handler
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !messageInput.disabled) {
+        sendMessage();
+      }
+    });
+
+    // Close button handler
+    chatClose.addEventListener('click', () => {
+      chatInterface.style.display = 'none';
+    });
+  }
 
 
   // Desktop keyboard controls

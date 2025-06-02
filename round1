@@ -1,10 +1,15 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
   // Set competition level once for all rounds (only if not already set)
   var competition = "${e://Field(Competition)}";
-  if (!competition || competition === "${e://Field(Competition)}") {
+  
+  // Check if competition is not set or is empty/undefined
+  if (!competition || competition === "" || competition === "undefined" || competition.includes("${e://Field")) {
     // Randomly assign to High or Low competition for this participant
     competition = Math.random() < 0.5 ? "High" : "Low";
     Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
+    console.log("Round 1: Set competition to " + competition);
+  } else {
+    console.log("Round 1: Using existing competition " + competition);
   }
   
   var valence     = "${e://Field(Seq1)}";
@@ -16,11 +21,10 @@ Qualtrics.SurveyEngine.addOnReady(function() {
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
     + "&round="       + round;
-
   var html = ''
     + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Tetris vs CPU ('+competition+' Competition)'
+    +     'Tetris vs CPU (' + competition.toUpperCase() + ' Competition) — Round 1'
     +   '</h3>'
     +   '<iframe '
     +     'src="' + src + '" '

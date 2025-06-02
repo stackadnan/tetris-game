@@ -1,6 +1,8 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
   // Use the competition level set in Round 1
   var competition = "${e://Field(Competition)}";
+  console.log("Round 2: Using competition " + competition);
+  
   var valence     = "${e://Field(Seq2)}";
   var round       = 2;
   var qid = this.questionId;
@@ -9,11 +11,10 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   var src = "https://stackadnan.github.io/tetris-game/"
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
-    + "&round="       + round;
-  var html = ''
+    + "&round="       + round;  var html = ''
     + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Tetris vs CPU ('+competition+' Competition) — Round 2'
+    +     'Tetris vs CPU (' + competition.toUpperCase() + ' Competition) — Round 2'
     +   '</h3>'
     +   '<iframe id="gameFrame" '
     +     'src="' + src + '" '

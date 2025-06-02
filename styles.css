@@ -472,6 +472,208 @@ canvas {
 canvas.player { border: 3px solid blue; }
 canvas.cpu    { border: 3px solid red; }
 
+/* Chat Interface */
+#chatInterface {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 350px;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border: 2px solid #1a252f;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+  display: none;
+  flex-direction: column;
+  z-index: 150;
+  overflow: hidden;
+}
+
+#chatHeader {
+  background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+  padding: 10px 15px;
+  border-bottom: 1px solid #34495e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chatTitle {
+  color: #ecf0f1;
+  font-size: 1rem;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+#chatClose {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#chatClose:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+#chatMessages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(52, 73, 94, 0.8);
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.1);
+  align-self: flex-start;
+  max-width: 75%;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #3498db;
+  border-radius: 50%;
+  animation: typing 1.5s infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  color: #bdc3c7;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 75%;
+  word-wrap: break-word;
+  position: relative;
+  animation: messageSlideIn 0.3s ease-out;
+  font-size: 0.9rem;
+}
+
+.message.ash {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  align-self: flex-start;
+  border: 1px solid rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.message.player {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  align-self: flex-end;
+  border: 1px solid rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#chatInput {
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+  border-top: 1px solid #34495e;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#messageInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #34495e;
+  border-radius: 20px;
+  background: rgba(52, 73, 94, 0.8);
+  color: #ecf0f1;
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+#messageInput:focus {
+  border-color: #3498db;
+  background: rgba(52, 73, 94, 1);
+}
+
+#messageInput::placeholder {
+  color: #95a5a6;
+}
+
+#sendButton {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+#sendButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+  transform: translateY(-1px);
+}
+
+#sendButton:disabled {
+  background: #7f8c8d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Prevent overlap on smaller screens - scale down but maintain structure */
 @media (max-width: 1200px) {
   #mainGameArea {

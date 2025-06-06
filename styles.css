@@ -835,10 +835,10 @@ canvas.cpu    { border: 3px solid red; }
     flex-shrink: 0;
   } */
   
-    #playerCanvas {
-        width: 200px !important;
+       #playerCanvas {
+        width: 170px !important;
         max-width: 240px !important;
-        height: 320px !important;
+        height: 280px !important;
         flex-shrink: 0;
         top: 20px !important;
     }
@@ -855,10 +855,10 @@ canvas.cpu    { border: 3px solid red; }
 
 
     #cpuCanvas {
-        width: 130px !important;
+        width: 90px !important;
         max-width: 160px !important;
-        min-width: 100px !important;
-        height: 230px !important;
+        min-width: 80px !important;
+        height: 150px !important;
         flex-shrink: 0;
         border: 2px solid #e74c3c;
         border-radius: 4px;
@@ -917,18 +917,14 @@ canvas.cpu    { border: 3px solid red; }
     bottom: 0;
     left: 0;
     right: 0;
-    background: #69252b00;
-    border-top: 2px solid #333;
-    padding: 15px;
     z-index: 90;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.5);
   }
   
   .mobile-control-row {
     display: flex;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 10px;
+
   }
   
   .mobile-control-row:last-child {
@@ -980,11 +976,11 @@ canvas.cpu    { border: 3px solid red; }
   }
     /* Create mobile-specific hold label since desktop controls are hidden */  
 
-  #mobileInstructions::after {
+     #mobileInstructions::after {
         content: "USE THE BUTTONS BELOW TO PLAY TETRIS.";
         position: fixed;
-        top: 380px;
-        right: 30px;
+        top: 260px;
+        right: 7px;
         color: #000000;
         font-size: 10px;
         font-weight: bold;
@@ -996,8 +992,8 @@ canvas.cpu    { border: 3px solid red; }
   #tetrisWrapper::after {
         content: "HELD PIECE";
         position: fixed;
-        top: 450px;
-        right: 30px;
+        top: 320px;
+        right: 7px;
         color: #000000;
         font-size: 10px;
         font-weight: bold;

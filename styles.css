@@ -893,8 +893,8 @@ canvas.cpu    { border: 3px solid red; }
       #mobileHoldCanvas {
         display: block !important;
         position: fixed !important;
-        top: 470px !important;
-        right: 30px !important;
+        top: 330px !important;
+        right: 7px !important;
         width: 100px !important;
         height: 100px !important;
         border: 2px solid #fff !important;

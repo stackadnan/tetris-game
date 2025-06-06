@@ -125,13 +125,12 @@
     return b;
   }
   class TetrisBoard {
-    constructor(id, mode) {
-      this.ctx = document.getElementById(id).getContext('2d');
+    constructor(id, mode) {      this.ctx = document.getElementById(id).getContext('2d');
       this.mode = mode;
       this.grid = Array.from({length:20}, ()=>Array(10).fill(0));
       this.score = 0;
-      this.garbage = 0;
-      this.hold = null;
+      this.garbage = 0;      this.heldPiece = null;
+      this.lastDrawnHeldPiece = undefined; // Track what was last drawn to avoid unnecessary clears
       this.canHold = true;
       this.prevShape = null;
       this.gameOver = false;      this.cpuTimer = 0;
@@ -155,10 +154,12 @@
         this.dropInterval = 500; // Player drop speed
         this.moveInterval = 200; // Player move speed
         this.skillLevel = 'human';
-      }
-      
+      }      
       this.spawn();
       this.acc = 0;
+      
+      // Initialize hold canvas display
+      this.drawHold();
     }spawn() {
       const keys = Object.keys(SHAPES);
       let p;
@@ -226,18 +227,19 @@
     }    hardDrop() {
       while (this.move(0,1));
       this.lock();
-    }
-    hold() {
-      if (!this.canHold) return;
-      
-      if (this.hold === null) {
+    }    hold() {
+      if (!this.canHold) {
+        return;
+      }
+
+      if (this.heldPiece === null) {
         // First hold - just store current piece and spawn new one
-        this.hold = this.prevShape;
+        this.heldPiece = this.prevShape;
         this.spawn();
       } else {
         // Swap current piece with held piece
-        const tempShape = this.hold;
-        this.hold = this.prevShape;
+        const tempShape = this.heldPiece;
+        this.heldPiece = this.prevShape;
         
         // Set up the swapped piece
         this.prevShape = tempShape;
@@ -252,11 +254,10 @@
           this.gameOver = true;
         }
         
-        if (this.mode === 'cpu') this.planCPU();
-      }
-      
+        if (this.mode === 'cpu') this.planCPU();      }
+
       this.canHold = false;
-    }    planCPU() {
+    }planCPU() {
       let best = competition === 'high' ? Infinity : -Infinity;
       let plan = {};
       for (let r=0; r<this.shape.length; r++) {
@@ -398,34 +399,55 @@
         }
         ctx.strokeStyle='#333';
         ctx.strokeRect(c*30, r*30, 30,30);
-      }
-      if (!this.gameOver) {
+      }      if (!this.gameOver) {
         ctx.fillStyle = COLORS[this.prevShape];
         for (let r=0; r<this.mat.length; r++) for (let c=0; c<this.mat[r].length; c++) {
           if (this.mat[r][c]) {
             ctx.fillRect((this.x+c)*30, (this.y+r)*30, 30,30);
             ctx.strokeRect((this.x+c)*30, (this.y+r)*30, 30,30);
+          }        }      }
+      // Only update hold canvas when heldPiece changes
+      if (this.heldPiece !== this.lastDrawnHeldPiece) {
+        this.drawHold();
+        this.lastDrawnHeldPiece = this.heldPiece;
+      }
+    }    drawHold() {
+      const hc = document.getElementById('holdCanvas');
+      if (!hc) {
+        console.error('Hold Canvas not found!');
+        return;
+      }      const ctx = hc.getContext('2d');
+        // Always clear and redraw to ensure consistency
+      ctx.clearRect(0,0,64,64);
+      
+      if (!this.heldPiece) {
+        // Draw empty state indicator in center
+        ctx.fillStyle = '#888';
+        ctx.fillRect(28, 28, 8, 8);
+        return;
+      }
+      const mat = SHAPES[this.heldPiece][0];
+      
+      const sz = Math.floor(48 / Math.max(mat.length, mat[0].length));      // Center the piece in the canvas
+      const offsetX = (64 - mat[0].length * sz) / 2;
+      const offsetY = (64 - mat.length * sz) / 2;
+      
+      ctx.fillStyle = COLORS[this.heldPiece];
+      ctx.strokeStyle = '#FFF';
+      ctx.lineWidth = 2;
+      
+      for (let r = 0; r < mat.length; r++) {
+        for (let c = 0; c < mat[r].length; c++) {
+          if (mat[r][c]) {
+            const x = offsetX + c * sz;
+            const y = offsetY + r * sz;
+            ctx.fillRect(x, y, sz, sz);
+            ctx.strokeRect(x, y, sz, sz);
           }
         }
       }
-      this.drawHold();
     }
-    drawHold() {
-      const hc = document.getElementById('holdCanvas');
-      const ctx = hc.getContext('2d');
-      ctx.clearRect(0,0,64,64);
-      if (!this.hold) return;
-      const mat = SHAPES[this.hold][0];
-      const sz = 64 / mat.length;
-      ctx.fillStyle = COLORS[this.hold];
-      for (let r=0; r<mat.length; r++) for (let c=0; c<mat[r].length; c++) {
-        if (mat[r][c]) {
-          ctx.fillRect(c*sz, r*sz, sz,sz);
-          ctx.strokeRect(c*sz, r*sz, sz,sz);
-        }
-      }
-    }
-  }  // --- Initialize Boards & Start Loop ---
+  }// --- Initialize Boards & Start Loop ---
   window.player = new TetrisBoard('playerCanvas', 'human');
   if (mode === 'vs') {
     window.cpu = new TetrisBoard('cpuCanvas', 'cpu');
@@ -437,37 +459,36 @@
   // Track who lost first - make it globally accessible
   window.gameWinner = null;
   
-  let lastTime = performance.now();
-  function gameLoop(timestamp) {
+  let lastTime = performance.now();  function gameLoop(timestamp) {
     const dt = timestamp - lastTime;
     lastTime = timestamp;
-    player.update(dt);
+    window.player.update(dt);
     if (mode === 'vs' && window.cpu) {
-      cpu.update(dt);
+      window.cpu.update(dt);
     }
 
     if (mode === 'vs' && competition === 'high' && window.cpu) {
       // Send all garbage rows
-      while (player.garbage > 0) { cpu.receiveGarbage(1); player.garbage--; }
-      while (cpu.garbage > 0)    { player.receiveGarbage(1); cpu.garbage--; }
+      while (window.player.garbage > 0) { window.cpu.receiveGarbage(1); window.player.garbage--; }
+      while (window.cpu.garbage > 0)    { window.player.receiveGarbage(1); window.cpu.garbage--; }
     }
 
-    player.draw();
+    window.player.draw();
     if (mode === 'vs' && window.cpu) {
-      cpu.draw();
-      updateScores(player.score, cpu.score);
+      window.cpu.draw();
+      updateScores(window.player.score, window.cpu.score);
     } else {
-      updateScores(player.score, 0);
+      updateScores(window.player.score, 0);
     }    // Check for game over and determine winner
     if (mode === 'vs' && window.cpu) {
-      if ((player.gameOver || cpu.gameOver) && window.gameWinner === null) {
+      if ((window.player.gameOver || window.cpu.gameOver) && window.gameWinner === null) {
         console.log('=== WINNER DETERMINATION (score-based) ===');
-        console.log('Player game over:', player.gameOver, 'Score:', player.score);
-        console.log('CPU game over:', cpu.gameOver, 'Score:', cpu.score);
-        if (player.score > cpu.score) {
+        console.log('Player game over:', window.player.gameOver, 'Score:', window.player.score);
+        console.log('CPU game over:', window.cpu.gameOver, 'Score:', window.cpu.score);
+        if (window.player.score > window.cpu.score) {
           window.gameWinner = 'player';
           console.log('Player wins - Higher score');
-        } else if (cpu.score > player.score) {
+        } else if (window.cpu.score > window.player.score) {
           window.gameWinner = 'cpu';
           console.log('CPU wins - Higher score');
         } else {
@@ -480,13 +501,13 @@
     }
 
     if (mode === 'solo') {
-      if (!player.gameOver) {
+      if (!window.player.gameOver) {
         requestAnimationFrame(gameLoop);
       } else {
         showSoloGameOver();
       }
     } else {
-      if (!player.gameOver && !cpu.gameOver) {
+      if (!window.player.gameOver && !window.cpu.gameOver) {
         requestAnimationFrame(gameLoop);
       } else {
         showChat();
@@ -565,10 +586,8 @@
     title.style.margin = '0 0 16px 0';
     title.style.fontSize = '2rem';
     title.style.color = '#ff6b6b';
-    title.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
-
-    const score = document.createElement('div');
-    score.textContent = `Final Score: ${player.score}`;
+    title.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';    const score = document.createElement('div');
+    score.textContent = `Final Score: ${window.player.score}`;
     score.style.fontSize = '1.4rem';
     score.style.margin = '0 0 20px 0';
     score.style.fontWeight = 'bold';
@@ -636,12 +655,11 @@
       const cpuMessage = document.createElement('div');
       cpuMessage.className = 'message ash';      // Determine who won based on actual game outcome
       let text = 'That was something.';
-      if (mode === 'vs') {
-        console.log('=== CHAT DEBUGGING ===');
+      if (mode === 'vs') {        console.log('=== CHAT DEBUGGING ===');
         console.log('Game winner determined as:', window.gameWinner);
-        console.log('Final scores - Player:', player.score, 'CPU:', cpu.score);
-        console.log('Player game over:', player.gameOver);
-        console.log('CPU game over:', cpu.gameOver);
+        console.log('Final scores - Player:', window.player.score, 'CPU:', window.cpu.score);
+        console.log('Player game over:', window.player.gameOver);
+        console.log('CPU game over:', window.cpu.gameOver);
         console.log('====================');
         
         if (window.gameWinner === 'player') {
@@ -712,26 +730,23 @@
       chatInterface.style.display = 'none';
     });
   }
-
-
   // Desktop keyboard controls
   document.addEventListener('keydown', e => {
-    if (player.gameOver) return;
+    if (window.player?.gameOver) return;
     switch (e.key) {
-      case 'a': case 'ArrowLeft':  player.move(-1,0); break;
-      case 'd': case 'ArrowRight': player.move(1,0);  break;
-      case 's': case 'ArrowDown':  player.move(0,1);  break;
-      case ' ':                   player.hardDrop();  break;
-      case 'c':                   player.hold();     break;
+      case 'a': case 'ArrowLeft':  window.player.move(-1,0); break;
+      case 'd': case 'ArrowRight': window.player.move(1,0);  break;
+      case 's': case 'ArrowDown':  window.player.move(0,1);  break;
+      case ' ':                   window.player.hardDrop();  break;
+      case 'w':                   window.player.rotate();   break;
     }
-    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') player.rotate();
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') window.player.hold();
   });
-
   // Mouse/touch drag & tap on player canvas
   let dragStartX = null;
   const pc = document.getElementById('playerCanvas');
   pc.addEventListener('pointerdown', e => {
-    if (player.gameOver) return;
+    if (window.player?.gameOver) return;
     dragStartX = e.clientX;
     pc.setPointerCapture(e.pointerId);
   });
@@ -739,33 +754,32 @@
     if (dragStartX === null) return;
     const dx = e.clientX - dragStartX;
     const cell = pc.clientWidth / 10;
-    if (dx > cell)  { player.move(1,0);  dragStartX = e.clientX; }
-    if (dx < -cell) { player.move(-1,0); dragStartX = e.clientX; }
+    if (dx > cell)  { window.player.move(1,0);  dragStartX = e.clientX; }
+    if (dx < -cell) { window.player.move(-1,0); dragStartX = e.clientX; }
   });
   pc.addEventListener('pointerup', e => {
     if (dragStartX !== null) {
-      if (Math.abs(e.clientX - dragStartX) < 5) player.rotate();
+      if (Math.abs(e.clientX - dragStartX) < 5) window.player.rotate();
       dragStartX = null;
     }
   });
-
   // Mobile control buttons
   document.querySelectorAll('#mobileControls button').forEach(btn => {
     btn.addEventListener('click', () => {
       const cmd = btn.dataset.cmd;
       switch (cmd) {
-        case 'moveLeft':   player.move(-1,0); break;
-        case 'moveDown':   player.move(0,1);  break;
-        case 'moveRight':  player.move(1,0);  break;
-        case 'rotate':     player.rotate();   break;
-        case 'hardDrop':   player.hardDrop(); break;
-        case 'hold':       player.hold();     break;
+        case 'moveLeft':   window.player.move(-1,0); break;
+        case 'moveDown':   window.player.move(0,1);  break;
+        case 'moveRight':  window.player.move(1,0);  break;
+        case 'rotate':     window.player.rotate();   break;
+        case 'hardDrop':   window.player.hardDrop(); break;
+        case 'hold':       window.player.hold();     break;
       }
     });
-  });
-
-  // --- Make Desktop Controls Functional ---
-document.getElementById('holdButton').onclick = () => { if (!window.player?.gameOver) window.player.hold(); };
+  });  // --- Make Desktop Controls Functional ---
+document.getElementById('holdButton').onclick = () => { 
+  if (!window.player?.gameOver) window.player.hold(); 
+};
 document.getElementById('moveLeft').onclick  = () => { if (!window.player?.gameOver) window.player.move(-1,0); };
 document.getElementById('moveDown').onclick  = () => { if (!window.player?.gameOver) window.player.move(0,1); };
 document.getElementById('moveRight').onclick = () => { if (!window.player?.gameOver) window.player.move(1,0); };

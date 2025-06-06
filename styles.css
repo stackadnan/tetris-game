@@ -836,9 +836,9 @@ canvas.cpu    { border: 3px solid red; }
   } */
   
     #playerCanvas {
-        width: 230px !important;
+        width: 200px !important;
         max-width: 240px !important;
-        height: 450px !important;
+        height: 320px !important;
         flex-shrink: 0;
         top: 20px !important;
     }
@@ -854,11 +854,11 @@ canvas.cpu    { border: 3px solid red; }
   } */
 
 
-      #cpuCanvas {
-        width: 150px !important;
+    #cpuCanvas {
+        width: 130px !important;
         max-width: 160px !important;
         min-width: 100px !important;
-        height: 260px !important;
+        height: 230px !important;
         flex-shrink: 0;
         border: 2px solid #e74c3c;
         border-radius: 4px;
@@ -917,7 +917,7 @@ canvas.cpu    { border: 3px solid red; }
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, #1a1a1a 0%, #2a2a2a 100%);
+    background: #00000000;
     border-top: 2px solid #333;
     padding: 15px;
     z-index: 90;

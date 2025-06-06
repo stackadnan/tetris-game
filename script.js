@@ -135,19 +135,18 @@
       this.prevShape = null;
       this.gameOver = false;      this.cpuTimer = 0;
       this.ready = (mode==='human');
-      this.readyTimer = 0;
-        // Adjust CPU difficulty based on competition level
+      this.readyTimer = 0;        // Adjust CPU difficulty based on competition level
       if (mode === 'cpu') {
         if (competition === 'high') {
-          this.readyDelay = Math.random() * 30 + 10; // Faster start (10-40ms)
+          this.readyDelay = 0; // Same as player (no delay for equal spawning speed)
           this.dropInterval = 500; // Same as player speed
           this.moveInterval = 200; // Same as player speed
           this.skillLevel = 'expert'; // Expert AI
         } else {
-          this.readyDelay = Math.random() * 2000 + 2500; // Slower start (2.5-4.5s)
-          this.dropInterval = 500; // Same as player speed
-          this.moveInterval = 200; // Same as player speed
-          this.skillLevel = 'beginner'; // Beginner AI
+          this.readyDelay = Math.random() * 1000 + 500; // Moderate start delay (0.5-1.5s)
+          this.dropInterval = 1200; // Slower drop speed than player
+          this.moveInterval = 800; // Slower move speed than player
+          this.skillLevel = 'expert'; // Expert AI (same smart logic as high competition)
         }
       } else {
         this.readyDelay = 0;
@@ -258,7 +257,7 @@
 
       this.canHold = false;
     }planCPU() {
-      let best = competition === 'high' ? Infinity : -Infinity;
+      let best = Infinity; // Always minimize score (same logic for both high and low competition)
       let plan = {};
       for (let r=0; r<this.shape.length; r++) {
         const mat = this.shape[r];
@@ -274,47 +273,26 @@
           // Count how many lines would be cleared
           const completeRows = g.filter(row => row.every(cell => cell !== 0));
           const lines = completeRows.length;
-          let score;          if (competition === 'high') {
-            // High competition: Perfect AI, maximize line clears, avoid holes, flat surface
-            score = aggregateHeight(g) * 0.5        // Penalty for height
-                  + countHoles(g) * 100.0           // Massive penalty for holes - avoid at all costs
-                  + bumpiness(g) * 2.0              // Strong penalty for uneven surface
-                  - lines * 1000                    // HUGE bonus for line clears
-                  - (lines >= 4 ? 2000 : 0)         // Massive bonus for Tetris
-                  - (lines >= 2 ? 500 : 0);         // Extra bonus for double+ lines
-          } else {
-            // Low competition: Bad AI, prefers holes, avoids line clears, random
-            score = -aggregateHeight(g) * 0.1   // Likes tall stacks
-                  - countHoles(g) * 0.1         // Likes holes
-                  + bumpiness(g) * 2.0          // Likes bumpy
-                  + lines * 5                   // Small bonus for lines
-                  + Math.random() * 50;         // High randomness for mistakes
-          }
-          if ((competition === 'high' && score < best) || 
-              (competition === 'low' && score > best)) {
+          let score;          // Use smart AI logic for both high and low competition
+          // Smart AI: maximize line clears, avoid holes, maintain flat surface
+          score = aggregateHeight(g) * 0.5        // Penalty for height
+                + countHoles(g) * 100.0           // Massive penalty for holes - avoid at all costs
+                + bumpiness(g) * 2.0              // Strong penalty for uneven surface
+                - lines * 1000                    // HUGE bonus for line clears
+                - (lines >= 4 ? 2000 : 0)         // Massive bonus for Tetris
+                - (lines >= 2 ? 500 : 0);         // Extra bonus for double+ lines
+          
+          if (score < best) {
             best = score;
             plan = {rot:r, x, y};
           }
-        }
-      }
-      // In low competition, often make completely random or bad moves, or skip move
-      if (competition === 'low') {
-        if (Math.random() < 0.5) {
-          // 50% chance: random move
-          const randomRot = Math.floor(Math.random() * this.shape.length);
-          const randomMat = this.shape[randomRot];
-          const maxX = 10 - randomMat[0].length;
-          const randomX = Math.floor(Math.random() * (maxX + 1));
-          plan = {rot: randomRot, x: randomX, y: 0};
-        } else if (Math.random() < 0.3) {
-          // 15% chance: skip move (do nothing)
-          plan = {rot: this.rot, x: this.x, y: this.y};
-        }
-      }      this.cpuPlan = plan;
+        }      }
+      
+      this.cpuPlan = plan;
       console.log(`CPU (${competition}): Planned move - rot:${plan.rot}, x:${plan.x}, score:${best.toFixed(2)}`);
       
       // Additional debugging for line clearing
-      if (competition === 'high') {
+      if (competition === 'high' || competition === 'low') {
         // Test the planned move to see if it clears lines
         const testGrid = this.grid.map(row=>row.slice());
         const testMat = this.shape[plan.rot];
@@ -371,19 +349,9 @@
           } else if (this.x < this.cpuPlan.x) {
             this.move(1,0);
           } else if (this.x > this.cpuPlan.x) {
-            this.move(-1,0);
-          } else {
-            // In high competition, always hard drop for speed and efficiency
-            if (competition === 'high') {
-              this.hardDrop();
-            } else {
-              // In low competition, sometimes skip dropping or just move down
-              if (Math.random() < 0.5) {
-                // 50% chance: do nothing (skip turn)
-              } else if (Math.random() < 0.8) {
-                this.move(0,1); // Regular move down
-              }
-            }
+            this.move(-1,0);          } else {
+            // Both high and low competition use smart play - always hard drop for optimal placement
+            this.hardDrop();
           }
           this.cpuTimer = 0;
         }
@@ -704,15 +672,23 @@
       sendButton.disabled = true;
       
       // Scroll to bottom
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      // Send response to parent window
-      window.parent.postMessage({
+      chatMessages.scrollTop = chatMessages.scrollHeight;      // Send response to parent window
+      const messageData = {
         type: 'chatResponse',
         round: round,
         valence: valence,
         text: text
-      }, '*');
+      };
+      
+      console.log('=== CHAT DATA COLLECTION DEBUG ===');
+      console.log('Sending postMessage with data:', messageData);
+      console.log('Round:', round, 'Type:', typeof round);
+      console.log('Valence:', valence);
+      console.log('Text:', text);
+      console.log('Parent window exists:', window.parent !== window);
+      console.log('==================================');
+      
+      window.parent.postMessage(messageData, '*');
     }
 
     // Send button click handler

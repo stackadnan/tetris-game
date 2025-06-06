@@ -22,10 +22,13 @@
 
 To ensure participants are properly sorted into High or Low Competition groups and remain consistent across all 3 rounds:
 
-### Step 1: Create Embedded Data Field
+### Step 1: Create Embedded Data Fields
 - In Survey Flow, add an Embedded Data element at the top
-- Set field name: `Competition`
-- Leave value blank (will be set by randomizer)
+- Set field names and leave values blank (will be set automatically):
+  - `Competition` - (will be set by randomizer)
+  - `ChatResponse1` - (will be set by Round 1 game)
+  - `ChatResponse2` - (will be set by Round 2 game)
+  - `ChatResponse3` - (will be set by Round 3 game)
 
 ### Step 2: Add Randomizer
 - Add a Randomizer element after the Embedded Data
@@ -42,7 +45,11 @@ To ensure participants are properly sorted into High or Low Competition groups a
 ## Survey Flow Example Structure:
 ```
 Survey Flow:
-├── Embedded Data: Competition = (leave blank)
+├── Embedded Data: 
+│   ├── Competition = (leave blank)
+│   ├── ChatResponse1 = (leave blank)
+│   ├── ChatResponse2 = (leave blank)
+│   └── ChatResponse3 = (leave blank)
 ├── Randomizer: Evenly Present Elements
 │   ├── Branch 1: Set Embedded Data Competition = High
 │   └── Branch 2: Set Embedded Data Competition = Low

@@ -52,37 +52,71 @@ Qualtrics.SurveyEngine.addOnReady(function() {
     console.log('Data round:', d.round, 'Type:', typeof d.round);
     console.log('Expected round:', round, 'Type:', typeof round);
     console.log('Data text:', d.text);
+    console.log('Data sender:', d.sender);
     
-    if (d.type !== "chatResponse") {
-      console.log('Message type mismatch - ignoring');
+    // Handle player chat responses
+    if (d.type === "chatResponse" && d.round === round) {
+      console.log('Processing PLAYER chat response');
+      console.log('Setting embedded data: ChatResponse' + round + ' = "' + d.text + '"');
+      Qualtrics.SurveyEngine.setEmbeddedData("ChatResponse" + round, d.text);
+      
+      // Verify the data was saved
+      var savedValue = Qualtrics.SurveyEngine.getEmbeddedData("ChatResponse" + round);
+      console.log('Verification - player chat embedded data value:', savedValue);
+      
+      if (savedValue === d.text) {
+        console.log('Player chat embedded data saved successfully');
+      } else {
+        console.log('WARNING: Player chat embedded data save failed!');
+        console.log('Expected:', d.text);
+        console.log('Actual:', savedValue);
+      }
+      
+      console.log('Clicking next button...');
+      console.log('================================================');
+      
+      // Add small delay to ensure data is saved before proceeding
+      setTimeout(function() {
+        jQuery("#NextButton").click();
+      }, 100);
+      return;
+    }
+    
+    // Handle opponent/CPU chat messages
+    if (d.type === "opponentChat" && d.round === round) {
+      console.log('Processing OPPONENT chat message');
+      console.log('Setting embedded data: OpponentChat' + round + ' = "' + d.text + '"');
+      Qualtrics.SurveyEngine.setEmbeddedData("OpponentChat" + round, d.text);
+      
+      // Verify the data was saved
+      var savedValue = Qualtrics.SurveyEngine.getEmbeddedData("OpponentChat" + round);
+      console.log('Verification - opponent chat embedded data value:', savedValue);
+      
+      if (savedValue === d.text) {
+        console.log('Opponent chat embedded data saved successfully');
+      } else {
+        console.log('WARNING: Opponent chat embedded data save failed!');
+        console.log('Expected:', d.text);
+        console.log('Actual:', savedValue);
+      }
+      
+      console.log('Opponent message recorded, waiting for player response...');
+      console.log('================================================');
+      return;
+    }
+    
+    // If message doesn't match expected criteria
+    if (d.type !== "chatResponse" && d.type !== "opponentChat") {
+      console.log('Message type mismatch - ignoring (type: ' + d.type + ')');
       return;
     }
     
     if (d.round !== round) {
-      console.log('Round mismatch - ignoring');
+      console.log('Round mismatch - ignoring (expected: ' + round + ', got: ' + d.round + ')');
       return;
     }
-      console.log('Setting embedded data: ChatResponse' + round + ' = "' + d.text + '"');
-    Qualtrics.SurveyEngine.setEmbeddedData("ChatResponse" + round, d.text);
     
-    // Verify the data was saved
-    var savedValue = Qualtrics.SurveyEngine.getEmbeddedData("ChatResponse" + round);
-    console.log('Verification - embedded data value:', savedValue);
-    
-    if (savedValue === d.text) {
-      console.log('Embedded data saved successfully');
-    } else {
-      console.log('WARNING: Embedded data save failed!');
-      console.log('Expected:', d.text);
-      console.log('Actual:', savedValue);
-    }
-    
-    console.log('Clicking next button...');
+    console.log('Unknown message type or condition - ignoring');
     console.log('================================================');
-    
-    // Add small delay to ensure data is saved before proceeding
-    setTimeout(function() {
-      jQuery("#NextButton").click();
-    }, 100);
   });
 });

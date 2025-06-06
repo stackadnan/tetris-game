@@ -3,10 +3,31 @@
 ## Issue Description
 Chat input responses are not being properly recorded in Qualtrics survey data output (currently showing as blank columns).
 
-## Technical Setup
-- **Game**: Sends `postMessage` to parent window with chat response data
-- **Qualtrics**: Listens for messages and saves data using `setEmbeddedData`
-- **Data Flow**: Game iframe → Qualtrics parent window → Embedded data → Survey export
+**CRITICAL: Your current Qualtrics export shows NO chat data columns at all, which means the embedded data fields are missing from your Survey Flow setup.**
+
+## Required Qualtrics Setup
+
+### **STEP 1: Add Embedded Data Fields to Survey Flow**
+**This is REQUIRED - your export shows these fields are missing:**
+
+1. **In Qualtrics, go to Survey Flow tab**
+2. **Click "Add New Element Here" at the top**
+3. **Select "Embedded Data"**
+4. **Add these 6 fields exactly:**
+   - `ChatResponse1` (Player response to Round 1)
+   - `ChatResponse2` (Player response to Round 2) 
+   - `ChatResponse3` (Player response to Round 3)
+   - `OpponentChat1` (CPU message in Round 1)
+   - `OpponentChat2` (CPU message in Round 2)
+   - `OpponentChat3` (CPU message in Round 3)
+
+5. **Save Survey Flow**
+
+### **Expected Data Export Columns**
+After setup, your CSV export should include these columns:
+| ChatResponse1 | ChatResponse2 | ChatResponse3 | OpponentChat1 | OpponentChat2 | OpponentChat3 |
+|---------------|---------------|---------------|---------------|---------------|---------------|
+| "Good game!"  | "That was fun"| "Thanks!"     | "Lol. I beat you."| "Thanks for playing."| "That was great."|
 
 ## Debugging Steps
 
@@ -20,26 +41,31 @@ When testing the survey:
 
 **From Game (script.js):**
 ```
-=== CHAT DATA COLLECTION DEBUG ===
-Sending postMessage with data: {type: 'chatResponse', round: 1, valence: 'Positive', text: 'Hello'}
+=== CPU CHAT DATA COLLECTION DEBUG ===
+Sending CPU message with data: {type: 'opponentChat', round: 1, valence: 'Positive', text: 'Lol. I beat you.', sender: 'cpu'}
+CPU message text: Lol. I beat you.
+======================================
+
+=== PLAYER CHAT DATA COLLECTION DEBUG ===
+Sending postMessage with data: {type: 'chatResponse', round: 1, valence: 'Positive', text: 'Good game!', sender: 'player'}
 Round: 1 Type: number
 Valence: Positive
-Text: Hello
+Text: Good game!
 Parent window exists: true
-==================================
+=========================================
 ```
 
 **From Qualtrics (round files):**
 ```
 === QUALTRICS MESSAGE LISTENER DEBUG (Round 1) ===
-Received message event: MessageEvent {...}
-Message data: {type: 'chatResponse', round: 1, valence: 'Positive', text: 'Hello'}
-Data type: chatResponse
-Data round: 1 Type: number
-Expected round: 1 Type: number
-Data text: Hello
-Setting embedded data: ChatResponse1 = "Hello"
-Embedded data set successfully
+Processing OPPONENT chat message
+Setting embedded data: OpponentChat1 = "Lol. I beat you."
+Opponent chat embedded data saved successfully
+Opponent message recorded, waiting for player response...
+
+Processing PLAYER chat response
+Setting embedded data: ChatResponse1 = "Good game!"
+Player chat embedded data saved successfully
 Clicking next button...
 ================================================
 ```
@@ -77,11 +103,12 @@ If rounds don't match:
 - Ensure URL parameter `round=1` is being passed correctly
 - Check that Qualtrics round variable matches iframe URL round parameter
 
-**Solution 3: Embedded Data Field Setup**
-In Qualtrics survey setup, ensure these embedded data fields exist:
-- `ChatResponse1`
-- `ChatResponse2` 
-- `ChatResponse3`
+**Solution 3: Embedded Data Field Setup (MOST LIKELY ISSUE)**
+In Qualtrics survey setup, ensure these embedded data fields exist in Survey Flow:
+- `ChatResponse1`, `ChatResponse2`, `ChatResponse3` (Player responses)
+- `OpponentChat1`, `OpponentChat2`, `OpponentChat3` (CPU messages)
+
+**Your current export shows NONE of these fields exist - this is the main problem!**
 
 **Solution 4: Timing Issues**
 If data is sent but not saved:
@@ -100,7 +127,7 @@ If data is sent but not saved:
 
 3. **Test Data Export:**
    - Complete survey with chat responses
-   - Export data and check for `ChatResponse1`, `ChatResponse2`, `ChatResponse3` columns
+   - Export data and check for `ChatResponse1`, `ChatResponse2`, `ChatResponse3`, `OpponentChat1`, `OpponentChat2`, `OpponentChat3` columns
 
 ### 5. Advanced Debugging
 
@@ -120,14 +147,15 @@ console.log('Verification - embedded data value:',
 ```
 
 ## Current Status
-- ✅ PostMessage system implemented
-- ✅ Qualtrics listeners implemented  
-- ✅ Debug logging added
-- ❓ Need to test data collection end-to-end
-- ❓ Need to verify data appears in survey export
+- ✅ PostMessage system implemented for both player and opponent
+- ✅ Qualtrics listeners implemented for both message types
+- ✅ Debug logging added for both player and CPU chat
+- ❌ **CRITICAL: Embedded data fields missing from Survey Flow**
+- ❓ Need to add 6 embedded data fields to Qualtrics Survey Flow
+- ❓ Need to test data collection end-to-end after setup
 
-## Next Steps
-1. Test survey with debug console open
-2. Verify messages are being sent and received
-3. Check if embedded data fields are properly configured in Qualtrics
-4. Test complete data export workflow
+## Next Steps (PRIORITY ORDER)
+1. **🚨 URGENT: Add embedded data fields to Qualtrics Survey Flow**
+2. Test survey with debug console open
+3. Verify both opponent and player messages are being sent and received
+4. Test complete data export workflow with all 6 chat columns

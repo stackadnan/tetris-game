@@ -642,9 +642,24 @@
         // In solo mode, always congratulate
         text = 'Thanks for playing. That was great.';
       }
-      
-      cpuMessage.textContent = text;
+        cpuMessage.textContent = text;
       chatMessages.appendChild(cpuMessage);
+      
+      // Send CPU message to parent window for data collection
+      const cpuMessageData = {
+        type: 'opponentChat',
+        round: round,
+        valence: valence,
+        text: text,
+        sender: 'cpu'
+      };
+      
+      console.log('=== CPU CHAT DATA COLLECTION DEBUG ===');
+      console.log('Sending CPU message with data:', cpuMessageData);
+      console.log('CPU message text:', text);
+      console.log('======================================');
+      
+      window.parent.postMessage(cpuMessageData, '*');
       
       // Enable input and send button
       messageInput.disabled = false;
@@ -677,16 +692,17 @@
         type: 'chatResponse',
         round: round,
         valence: valence,
-        text: text
+        text: text,
+        sender: 'player'
       };
       
-      console.log('=== CHAT DATA COLLECTION DEBUG ===');
+      console.log('=== PLAYER CHAT DATA COLLECTION DEBUG ===');
       console.log('Sending postMessage with data:', messageData);
       console.log('Round:', round, 'Type:', typeof round);
       console.log('Valence:', valence);
       console.log('Text:', text);
       console.log('Parent window exists:', window.parent !== window);
-      console.log('==================================');
+      console.log('=========================================');
       
       window.parent.postMessage(messageData, '*');
     }

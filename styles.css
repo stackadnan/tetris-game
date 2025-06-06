@@ -894,9 +894,9 @@ canvas.cpu    { border: 3px solid red; }
         display: block !important;
         position: fixed !important;
         top: 330px !important;
-        right: 7px !important;
-        width: 100px !important;
-        height: 100px !important;
+        right: 25px !important;
+        width: 60px !important;
+        height: 60px !important;
         border: 2px solid #fff !important;
         background: #000 !important;
         z-index: 999 !important;
@@ -919,7 +919,7 @@ canvas.cpu    { border: 3px solid red; }
     width: 180px;
     padding: 8px;
     z-index: 90;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0);
   }
     .mobile-control-row {
     display: flex;
@@ -991,7 +991,7 @@ canvas.cpu    { border: 3px solid red; }
     width: calc(100% - 20px);
     background: linear-gradient(to bottom, #555 0%, #111 100%);
     border: 3px solid #000;
-    font-size: 18px;
+    font-size: 10px;
     letter-spacing: 2px;
     padding: 12px 16px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);

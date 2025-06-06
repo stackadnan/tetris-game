@@ -27,7 +27,7 @@
   <!-- Main Game Area: Controls + Game Canvases + Instructions -->
   <div id="mainGameArea">
     <!-- Desktop Controls & Hold Box -->    <div id="controls">
-      <div class="hold-label">HELD PIECE</div>
+      <!-- <div class="hold-label">HELD PIECE</div> -->
       <div id="holdBox"><canvas id="holdCanvas" width="64" height="64"></canvas></div>
       <button id="rotateButton">⟳ W</button>
       <div class="moveButtons">
@@ -94,7 +94,7 @@
   </div><!-- Mobile Touch Buttons -->
   <div id="mobileControls">
     <div class="mobile-control-row">
-      <button data-cmd="hold">HOLD PIECE</button>
+      <button data-cmd="hold">HOLD</button>
     </div>
     <div class="mobile-control-row">
       <button data-cmd="moveLeft">←</button>
@@ -102,10 +102,10 @@
       <button data-cmd="moveRight">→</button>
     </div>
     <div class="mobile-control-row">
-      <button data-cmd="rotate">↑ Shift ROTATE</button>
+      <button data-cmd="rotate">⟳</button>
     </div>
     <div class="mobile-control-row">
-      <button data-cmd="hardDrop">DROP</button>
+      <button data-cmd="hardDrop">SPACE DROP</button>
     </div>
   </div>
   <!-- Mobile Instructions -->

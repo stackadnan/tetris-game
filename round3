@@ -19,14 +19,22 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   var valence     = "${e://Field(Seq3)}";
   var round       = 3;
   var qid         = this.questionId;
-
-  // build a 100% wide, 75vh tall iframe
+  // build a 100% wide, 75vh tall iframe with responsive dimensions
   var src = "https://stackadnan.github.io/tetris-game/"
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
     + "&round="       + round;
+
+  // Detect mobile devices
+  var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Set dimensions based on device type
+  var containerStyle = isMobile 
+    ? "font-family:sans-serif; width:223px; height:511px; overflow:hidden; user-scalable=no; margin:0 auto;"
+    : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
+    
   var html = ''
-    + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
+    + '<div style="' + containerStyle + '">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
     +     'Round 3 ('+competition+' Competition)'
     +   '</h3>'

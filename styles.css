@@ -910,32 +910,35 @@ canvas.cpu    { border: 3px solid red; }
   /* Hide solo instructions on mobile */
   #soloInstructions {
     display: none !important;
-  }    /* Show mobile controls */
+  }  /* Show mobile controls */
   #mobileControls {
     display: block;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: 370px;
+    left: 10px;
+    width: 180px;
+    padding: 8px;
     z-index: 90;
+    background: rgba(0,0,0,0.1);
   }
-  
-  .mobile-control-row {
+    .mobile-control-row {
     display: flex;
     justify-content: center;
-    gap: 15px;
-
+    gap: 6px;
+    margin-bottom: 6px;
   }
   
   .mobile-control-row:last-child {
     margin-bottom: 0;
-  }  #mobileControls button {
-    background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a00 100%);
+  }
+  
+  #mobileControls button {
+    background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
     color: #ffffff;
     border: 2px solid #1a1a1a;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
     font-weight: bold;
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -950,29 +953,49 @@ canvas.cpu    { border: 3px solid red; }
     border-color: #000;
     transform: scale(0.95);
     box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.3);
-  }
-    /* Specific button sizing */
+  }  /* Specific button sizing */
   #mobileControls button[data-cmd="hold"] {
-    min-width: 120px;
+    min-width: 70px;
     background: linear-gradient(to bottom, #3a3a3a 0%, #1f1f1f 100%);
     border: 2px solid #0a0a0a;
-    font-size: 13px;
-    letter-spacing: 1px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 8px 10px;
   }
   
   #mobileControls button[data-cmd="rotate"] {
-    min-width: 10px;
+    min-width: 60px;
     background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
     border: 2px solid #1a1a1a;
-    font-size: 12px;
+    font-size: 10px;
     letter-spacing: 0.5px;
-  }#mobileControls button[data-cmd="hardDrop"] {
-    min-width: 100px;
+    padding: 8px 10px;
+  }
+  
+  /* Movement buttons (left, down, right) */
+  #mobileControls button[data-cmd="moveLeft"],
+  #mobileControls button[data-cmd="softDrop"],
+  #mobileControls button[data-cmd="moveRight"] {
+    min-width: 45px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  /* Space Drop button - positioned separately at bottom */
+  #mobileControls button[data-cmd="hardDrop"] {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    min-width: unset;
+    width: calc(100% - 20px);
     background: linear-gradient(to bottom, #555 0%, #111 100%);
     border: 3px solid #000;
-    font-size: 16px;
+    font-size: 18px;
     letter-spacing: 2px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+    padding: 12px 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+    z-index: 95;
   }
     /* Create mobile-specific hold label since desktop controls are hidden */  
 

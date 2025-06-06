@@ -380,25 +380,37 @@
         this.lastDrawnHeldPiece = this.heldPiece;
       }
     }    drawHold() {
-      const hc = document.getElementById('holdCanvas');
-      if (!hc) {
-        console.error('Hold Canvas not found!');
-        return;
-      }      const ctx = hc.getContext('2d');
-        // Always clear and redraw to ensure consistency
-      ctx.clearRect(0,0,64,64);
+      // Check if we're on mobile (screen width <= 480px)
+      const isMobile = window.innerWidth <= 480;
+      const canvasId = isMobile ? 'mobileHoldCanvas' : 'holdCanvas';
+      const hc = document.getElementById(canvasId);
       
-      if (!this.heldPiece) {
-        // Draw empty state indicator in center
-        ctx.fillStyle = '#888';
-        ctx.fillRect(28, 28, 8, 8);
+      if (!hc) {
+        console.error(`${canvasId} not found!`);
         return;
       }
-      const mat = SHAPES[this.heldPiece][0];
       
-      const sz = Math.floor(48 / Math.max(mat.length, mat[0].length));      // Center the piece in the canvas
-      const offsetX = (64 - mat[0].length * sz) / 2;
-      const offsetY = (64 - mat.length * sz) / 2;
+      const ctx = hc.getContext('2d');
+      // Always clear and redraw to ensure consistency
+      const canvasSize = isMobile ? 100 : 64;
+      ctx.clearRect(0, 0, canvasSize, canvasSize);
+        if (!this.heldPiece) {
+        // Draw empty state indicator in center
+        ctx.fillStyle = '#888';
+        const indicatorSize = isMobile ? 12 : 8;
+        const centerX = (canvasSize - indicatorSize) / 2;
+        const centerY = (canvasSize - indicatorSize) / 2;
+        ctx.fillRect(centerX, centerY, indicatorSize, indicatorSize);
+        return;
+      }
+      
+      const mat = SHAPES[this.heldPiece][0];
+      const maxDim = Math.max(mat.length, mat[0].length);
+      const sz = Math.floor((canvasSize - 16) / maxDim); // Leave 16px margin
+      
+      // Center the piece in the canvas
+      const offsetX = (canvasSize - mat[0].length * sz) / 2;
+      const offsetY = (canvasSize - mat.length * sz) / 2;
       
       ctx.fillStyle = COLORS[this.heldPiece];
       ctx.strokeStyle = '#FFF';

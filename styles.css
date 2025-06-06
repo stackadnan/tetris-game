@@ -766,5 +766,187 @@ canvas.cpu    { border: 3px solid red; }
   }
 }
 
-/* Remove all responsive and media query rules */
-/* Remove all @media blocks and any clamp() or vw/vh units */
+/* Mobile styles for iPhone SE and similar devices */
+@media (max-width: 480px) {
+  /* Make score bars horizontal and prominent at top */
+  #scoreBars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #111;
+    padding: 12px 8px;
+    text-align: center;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    height: auto;
+    min-height: 50px;
+  }
+  
+  .pill {
+    display: inline-block;
+    margin: 0;
+    padding: 8px 16px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  /* Hide vertical score bars in mobile */
+  #scoreBarVertical {
+    display: none !important;
+  }
+  
+  /* Adjust main game area to account for fixed top score bar */
+  #mainGameArea {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    min-width: unset;
+    flex-direction: column;
+    gap: 10px;
+  }  /* Horizontal layout for mobile - player canvas left, CPU canvas right */
+  #tetrisWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-width: unset;
+    gap: 15px;
+    padding: 0;
+    padding-top: 20px;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Player canvas - larger, positioned on the left */
+  #playerCanvas {
+    width: 240px !important;
+    max-width: 240px !important;
+    height: 360px !important;
+    flex-shrink: 0;
+  }
+  
+  /* CPU canvas - smaller, positioned on the right */
+  #cpuCanvas {
+    width: 100px !important;
+    max-width: 100px !important;
+    height: 150px !important;
+    flex-shrink: 0;
+    border: 2px solid #e74c3c;
+    border-radius: 4px;
+  }
+  
+  /* Single canvas mode (solo or when CPU is hidden) */
+  #tetrisWrapper:has(#cpuCanvas[style*="display: none"]) #playerCanvas,
+  body.solo-mode #playerCanvas {
+    width: 320px !important;
+    max-width: 320px !important;
+    height: 450px !important;
+    margin: 0 auto;
+  }  /* Hide desktop controls on mobile */
+  #controls {
+    display: none !important;
+  }
+  
+  /* Show mobile-specific hold canvas */
+  #mobileHoldCanvas {
+    display: block !important;
+    position: fixed !important;
+    top: 270px !important;
+    right: 15px !important;
+    width: 100px !important;
+    height: 100px !important;
+    border: 2px solid #fff !important;
+    background: #000 !important;
+    z-index: 999 !important;
+  }
+  
+  /* Hide original holdCanvas on mobile since it's in hidden controls */
+  #holdCanvas {
+    display: none !important;
+  }
+  
+  /* Hide solo instructions on mobile */
+  #soloInstructions {
+    display: none !important;
+  }
+    /* Show mobile controls */
+  #mobileControls {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #111;
+    padding: 15px;
+    z-index: 90;
+  }
+  
+  .mobile-control-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .mobile-control-row:last-child {
+    margin-bottom: 0;
+  }
+  #mobileControls button {
+    background: white;
+    color: #333;
+    border: 1px solid #666;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: none;
+    box-shadow: none;
+    min-width: 50px;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  
+  #mobileControls button:active {
+    background: #f0f0f0;
+    border-color: #888;
+    transform: scale(0.95);
+  }
+  
+  /* Specific button sizing */
+  #mobileControls button[data-cmd="hold"] {
+    min-width: 120px;
+  }
+  
+  #mobileControls button[data-cmd="rotate"] {
+    min-width: 140px;
+  }
+  #mobileControls button[data-cmd="hardDrop"] {
+    min-width: 100px;
+    background: linear-gradient(to bottom, #444 0%, #111 100%);
+  }
+    /* Create mobile-specific hold label since desktop controls are hidden */  
+  #tetrisWrapper::after {
+    content: "HELD PIECE";
+    position: fixed; /* Use fixed to match holdCanvas positioning */
+    top: 250px; /* Just above holdCanvas */
+    right: 15px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    width: 100px;
+    z-index: 16; /* Higher than holdCanvas */
+    letter-spacing: 1px;
+  }
+}

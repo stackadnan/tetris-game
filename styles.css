@@ -915,6 +915,7 @@ canvas.cpu    { border: 3px solid red; }
         flex-shrink: 0;
         border: 2px solid #e74c3c;
         border-radius: 4px;
+        margin-left: 30px !important;
     }
   
   /* Single canvas mode (solo or when CPU is hidden) */

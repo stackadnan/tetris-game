@@ -789,7 +789,6 @@ canvas.cpu    { border: 3px solid red; }
   /* Add score text labels */
   
   
-  
     .pill {
     display: block;
     margin: 0;
@@ -805,6 +804,11 @@ canvas.cpu    { border: 3px solid red; }
     overflow: hidden;
     background: #333;
     border: 2px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(27, 26, 26);
+    z-index: 2;
   }
   
   /* Score bar fill effect */
@@ -817,18 +821,7 @@ canvas.cpu    { border: 3px solid red; }
     width: var(--fill-percentage, 0%);
     transition: width 0.3s ease-out;
     border-radius: 14px;
-  }
-  /* Player name labels on the bars */
-  .pill::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    z-index: 2;
+    z-index: -1;
   }
     /* Specific content for each pill */
  
@@ -837,15 +830,15 @@ canvas.cpu    { border: 3px solid red; }
   
     /* Specific colors for each pill */
   .pill.red::before {
-    background: linear-gradient(90deg, #dc26265d 0%, #f1424271 100%);
+    background: linear-gradient(90deg, #dc2626 0%, #f14242b2 100%);
   }
   
   .pill.blue::before {
-    background: linear-gradient(90deg, #2564eb60 0%, #3b83f665 100%);
+    background: linear-gradient(90deg, #2564eb 0%, #3b83f6bd 100%);
   }
   
   .pill.purple::before {
-    background: linear-gradient(90deg, #7c3aed7a 0%, #8a5cf67c 100%);
+    background: linear-gradient(90deg, #7c3aed 0%, #8a5cf6bd 100%);
   }
   
   /* Order the pills correctly */

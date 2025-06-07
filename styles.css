@@ -68,9 +68,9 @@ html, body {
   font-size: 14px;
   font-weight: bold;
 }
-.pill.blue   { background: navy; }
-.pill.red    { background: maroon; }
-.pill.purple { background: indigo; }
+.pill.blue   { background: rgba(0, 0, 128, 0); }
+.pill.red    { background: rgba(128, 0, 0, 0); }
+.pill.purple { background: rgba(76, 0, 130, 0); }
 
 /* Lead Text Animation */
 #leadText {
@@ -768,44 +768,103 @@ canvas.cpu    { border: 3px solid red; }
 
 /* Mobile styles for iPhone SE and similar devices */
 @media (max-width: 480px) {
-  /* Make score bars horizontal and prominent at top */
+  /* Make score bars vertical and stacked at top */
   #scoreBars {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: #111;
-    padding: 12px 8px;
+    background: #11111100;
+    padding: 8px;
     text-align: center;
     z-index: 100;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+
+    gap: 1px;
     height: auto;
-    min-height: 50px;
+    min-height: 120px;
   }
   
-  .pill {
-    display: inline-block;
+  /* Add score text labels */
+  
+  
+  
+    .pill {
+    display: block;
     margin: 0;
-    padding: 8px 16px;
+    padding: 0;
     border-radius: 16px;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
-    min-width: 120px;
+    min-width: 140px;
     text-align: center;
+    width: 180px;
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+    background: #333;
+    border: 2px solid #555;
+  }
+  
+  /* Score bar fill effect */
+  .pill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--fill-percentage, 0%);
+    transition: width 0.3s ease-out;
+    border-radius: 14px;
+  }
+  /* Player name labels on the bars */
+  .pill::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    z-index: 2;
+  }
+    /* Specific content for each pill */
+ 
+
+  
+  
+    /* Specific colors for each pill */
+  .pill.red::before {
+    background: linear-gradient(90deg, #dc26265d 0%, #f1424271 100%);
+  }
+  
+  .pill.blue::before {
+    background: linear-gradient(90deg, #2564eb60 0%, #3b83f665 100%);
+  }
+  
+  .pill.purple::before {
+    background: linear-gradient(90deg, #7c3aed7a 0%, #8a5cf67c 100%);
+  }
+  
+  /* Order the pills correctly */
+  #cpuPill {
+    order: -1;
+  }
+  
+  #playerPill {
+    order: 1;
   }
   
   /* Hide vertical score bars in mobile */
   #scoreBarVertical {
     display: none !important;
   }
-  
-  /* Adjust main game area to account for fixed top score bar */
+    /* Adjust main game area to account for fixed top score bar */
   #mainGameArea {
     position: fixed;
-    top: 60px;
+    top: 50px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -813,7 +872,7 @@ canvas.cpu    { border: 3px solid red; }
     min-width: unset;
     flex-direction: column;
     gap: 10px;
-  }  /* Horizontal layout for mobile - player canvas left, CPU canvas right */
+  }/* Horizontal layout for mobile - player canvas left, CPU canvas right */
   #tetrisWrapper {
     display: flex;
     flex-direction: row;

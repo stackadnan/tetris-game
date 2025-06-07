@@ -508,6 +508,29 @@
     if (playerBarLabel) playerBarLabel.textContent = p;
     if (cpuBarLabel && mode === 'vs') cpuBarLabel.textContent = c;
     if (cpuNameLabel && mode === 'vs') cpuNameLabel.textContent = cpuName;
+      // Update mobile score bars data attributes for CSS pseudo-elements
+    const scoreBars = document.getElementById('scoreBars');
+    if (scoreBars) {
+      scoreBars.setAttribute('data-player-score', p);
+      if (mode === 'vs') {
+        scoreBars.setAttribute('data-cpu-score', c);
+      }
+    }
+      // Update mobile pill fill percentages
+    const playerPill = document.getElementById('playerPill');
+    const cpuPill = document.getElementById('cpuPill');
+    if (playerPill || cpuPill) {
+      let maxScore = Math.max(1000, p, c);
+      if (maxScore === 0) maxScore = 1;
+      const playerPct = (p / maxScore) * 100;
+      const cpuPct = (c / maxScore) * 100;
+        if (playerPill) {
+        playerPill.style.setProperty('--fill-percentage', playerPct + '%');
+      }
+      if (cpuPill && mode === 'vs') {
+        cpuPill.style.setProperty('--fill-percentage', cpuPct + '%');
+      }
+    }
     // Animate bar fill heights
     const playerInner = document.getElementById('scoreBarPlayerInner');
     const cpuInner = document.getElementById('scoreBarCpuInner');

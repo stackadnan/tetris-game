@@ -1,43 +1,127 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
-  var competition = "${e://Field(Competition)}";
-  // Fallback: If not High/Low, randomize and set embedded data
-  if (competition !== "High" && competition !== "Low") {
-    competition = Math.random() < 0.5 ? "High" : "Low";
-    Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
-    console.log("Competition fallback assigned:", competition);
-  } else {
-    console.log("Competition from Qualtrics:", competition);
-  }
-  var valence     = "${e://Field(Seq1)}";
-  var round       = 1;
-  var qid         = this.questionId;
-  // build a 100% wide, 75vh tall iframe with responsive dimensions
-  var src = "https://stackadnan.github.io/tetris-game/"
-    + "?competition=" + encodeURIComponent(competition)
-    + "&valence="     + encodeURIComponent(valence)
-    + "&round="       + round;
-
-  // Detect mobile devices
-  var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  var valence = "${e://Field(Seq1)}";
+  var round = 1;
+  var qid = this.questionId;
   
-  // Set dimensions based on device type
-  var containerStyle = isMobile 
-    ? "font-family:sans-serif; width:223px; height:511px; overflow:hidden; user-scalable=no; margin:0 auto;"
-    : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
-  
-  var html = ''
-    + '<div style="' + containerStyle + '">'
-    +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Round 1 ('+competition+' Competition)'
-    +   '</h3>'
-    +   '<iframe '
-    +     'src="' + src + '" '
-    +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
-    +     'allowfullscreen>'
-    +   '</iframe>'
+  // Competition selection interface
+  var selectionHtml = ''
+    + '<div style="font-family:sans-serif; max-width:600px; margin:0 auto; text-align:center; padding:20px;">'
+    +   '<h3 style="font-size:1.5em; margin-bottom:20px; color:#333;">Choose Your Game Mode - Round 1</h3>'
+    +   '<p style="font-size:1.1em; margin-bottom:30px; color:#666;">Select the type of challenge you want to face:</p>'
+    +   '<div style="display:flex; flex-direction:column; gap:15px; max-width:400px; margin:0 auto;">'
+    +     '<button id="highCompBtn" style="'
+    +       'background: linear-gradient(135deg, #ff6b6b, #ee5a52); '
+    +       'color: white; '
+    +       'border: none; '
+    +       'padding: 15px 20px; '
+    +       'border-radius: 10px; '
+    +       'font-size: 1.1em; '
+    +       'font-weight: bold; '
+    +       'cursor: pointer; '
+    +       'transition: all 0.3s ease; '
+    +       'box-shadow: 0 4px 12px rgba(255,107,107,0.3);'
+    +     '">'
+    +       '🔥 High Competition'
+    +       '<br><small style="font-weight:normal; opacity:0.9;">vs Expert AI - Fast & Challenging</small>'
+    +     '</button>'
+    +     '<button id="lowCompBtn" style="'
+    +       'background: linear-gradient(135deg, #a8e6cf, #7fcdcd); '
+    +       'color: white; '
+    +       'border: none; '
+    +       'padding: 15px 20px; '
+    +       'border-radius: 10px; '
+    +       'font-size: 1.1em; '
+    +       'font-weight: bold; '
+    +       'cursor: pointer; '
+    +       'transition: all 0.3s ease; '
+    +       'box-shadow: 0 4px 12px rgba(168,230,207,0.3);'
+    +     '">'
+    +       '💚 Low Competition'
+    +       '<br><small style="font-weight:normal; opacity:0.9;">vs Beginner AI - Relaxed & Fun</small>'
+    +     '</button>'
+    +     '<button id="soloBtn" style="'
+    +       'background: linear-gradient(135deg, #4ecdc4, #44a08d); '
+    +       'color: white; '
+    +       'border: none; '
+    +       'padding: 15px 20px; '
+    +       'border-radius: 10px; '
+    +       'font-size: 1.1em; '
+    +       'font-weight: bold; '
+    +       'cursor: pointer; '
+    +       'transition: all 0.3s ease; '
+    +       'box-shadow: 0 4px 12px rgba(78,205,196,0.3);'
+    +     '">'
+    +       '⭐ Solo Mode'
+    +       '<br><small style="font-weight:normal; opacity:0.9;">Play Alone - Practice & Improve</small>'
+    +     '</button>'
+    +   '</div>'
     + '</div>';
 
-  jQuery("#" + qid + " .QuestionText").html(html);  window.addEventListener("message", function(evt) {
+  jQuery("#" + qid + " .QuestionText").html(selectionHtml);
+
+  // Add hover effects
+  jQuery('#highCompBtn').hover(
+    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
+    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
+  );
+  jQuery('#lowCompBtn').hover(
+    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
+    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
+  );
+  jQuery('#soloBtn').hover(
+    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
+    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
+  );
+
+  // Handle button clicks
+  function startGame(competition, mode) {
+    // Set the competition level in embedded data for use in later rounds
+    Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
+    Qualtrics.SurveyEngine.setEmbeddedData("GameMode", mode);
+    console.log("Player selected:", competition, "competition,", mode, "mode");
+    
+    var src = "https://stackadnan.github.io/tetris-game/"
+      + "?competition=" + encodeURIComponent(competition)
+      + "&valence=" + encodeURIComponent(valence)
+      + "&mode=" + encodeURIComponent(mode)
+      + "&round=" + round;
+
+    // Detect mobile devices
+    var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Set dimensions based on device type
+    var containerStyle = isMobile 
+      ? "font-family:sans-serif; width:223px; height:511px; overflow:hidden; user-scalable=no; margin:0 auto;"
+      : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
+    
+    var gameHtml = ''
+      + '<div style="' + containerStyle + '">'
+      +   '<h3 style="font-size:1.2em; margin:4px 0;">'
+      +     'Round 1 (' + competition + ' ' + (mode === 'solo' ? 'Solo' : 'Competition') + ')'
+      +   '</h3>'
+      +   '<iframe '
+      +     'src="' + src + '" '
+      +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
+      +     'allowfullscreen>'
+      +   '</iframe>'
+      + '</div>';
+
+    jQuery("#" + qid + " .QuestionText").html(gameHtml);
+  }
+  // Button event handlers
+  jQuery('#highCompBtn').click(function() {
+    startGame('High', 'vs');
+  });
+
+  jQuery('#lowCompBtn').click(function() {
+    startGame('Low', 'vs');
+  });
+
+  jQuery('#soloBtn').click(function() {
+    startGame('Low', 'solo'); // Use Low competition settings for solo mode
+  });
+
+  window.addEventListener("message", function(evt) {
     console.log('=== QUALTRICS MESSAGE LISTENER DEBUG (Round 1) ===');
     console.log('Received message event:', evt);
     console.log('Message data:', evt.data);

@@ -808,6 +808,7 @@ canvas.cpu    { border: 3px solid red; }
     align-items: center;
     justify-content: center;
     color: rgb(27, 26, 26);
+
     z-index: 2;
   }
   
@@ -872,7 +873,7 @@ canvas.cpu    { border: 3px solid red; }
     align-items: flex-start;
     justify-content: flex-start;
     min-width: unset;
-    gap: 15px;
+    gap: 0px;
     padding: 0;
     padding-top: 20px;
     width: 100%;

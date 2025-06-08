@@ -367,6 +367,11 @@ body.solo-mode #scoreBars {
   text-align: center;
 }
 
+/* Hide vertical score bar between canvases for low competition mode on desktop */
+body.low-competition #scoreBarVertical {
+  display: none !important;
+}
+
 /* Vertical Score Bars */
 #scoreBarVertical {
   display: flex;

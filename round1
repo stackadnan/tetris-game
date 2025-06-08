@@ -3,82 +3,23 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   var round = 1;
   var qid = this.questionId;
   
-  // Competition selection interface
-  var selectionHtml = ''
-    + '<div style="font-family:sans-serif; max-width:600px; margin:0 auto; text-align:center; padding:20px;">'
-    +   '<h3 style="font-size:1.5em; margin-bottom:20px; color:#333;">Choose Your Game Mode - Round 1</h3>'
-    +   '<p style="font-size:1.1em; margin-bottom:30px; color:#666;">Select the type of challenge you want to face:</p>'
-    +   '<div style="display:flex; flex-direction:column; gap:15px; max-width:400px; margin:0 auto;">'
-    +     '<button id="highCompBtn" style="'
-    +       'background: linear-gradient(135deg, #ff6b6b, #ee5a52); '
-    +       'color: white; '
-    +       'border: none; '
-    +       'padding: 15px 20px; '
-    +       'border-radius: 10px; '
-    +       'font-size: 1.1em; '
-    +       'font-weight: bold; '
-    +       'cursor: pointer; '
-    +       'transition: all 0.3s ease; '
-    +       'box-shadow: 0 4px 12px rgba(255,107,107,0.3);'
-    +     '">'
-    +       '🔥 High Competition'
-    +       '<br><small style="font-weight:normal; opacity:0.9;">vs Expert AI - Fast & Challenging</small>'
-    +     '</button>'
-    +     '<button id="lowCompBtn" style="'
-    +       'background: linear-gradient(135deg, #a8e6cf, #7fcdcd); '
-    +       'color: white; '
-    +       'border: none; '
-    +       'padding: 15px 20px; '
-    +       'border-radius: 10px; '
-    +       'font-size: 1.1em; '
-    +       'font-weight: bold; '
-    +       'cursor: pointer; '
-    +       'transition: all 0.3s ease; '
-    +       'box-shadow: 0 4px 12px rgba(168,230,207,0.3);'
-    +     '">'
-    +       '💚 Low Competition'
-    +       '<br><small style="font-weight:normal; opacity:0.9;">vs Beginner AI - Relaxed & Fun</small>'
-    +     '</button>'
-    +     '<button id="soloBtn" style="'
-    +       'background: linear-gradient(135deg, #4ecdc4, #44a08d); '
-    +       'color: white; '
-    +       'border: none; '
-    +       'padding: 15px 20px; '
-    +       'border-radius: 10px; '
-    +       'font-size: 1.1em; '
-    +       'font-weight: bold; '
-    +       'cursor: pointer; '
-    +       'transition: all 0.3s ease; '
-    +       'box-shadow: 0 4px 12px rgba(78,205,196,0.3);'
-    +     '">'
-    +       '⭐ Solo Mode'
-    +       '<br><small style="font-weight:normal; opacity:0.9;">Play Alone - Practice & Improve</small>'
-    +     '</button>'
-    +   '</div>'
-    + '</div>';
+  // Randomly assign game mode
+  var modes = [
+    { competition: 'High', mode: 'vs', label: 'High Competition' },
+    { competition: 'Low', mode: 'vs', label: 'Low Competition' },
+    { competition: 'Low', mode: 'solo', label: 'Solo Mode' }
+  ];
+  
+  var randomIndex = Math.floor(Math.random() * modes.length);
+  var assignedMode = modes[randomIndex];
+  
+  // Set the competition level and mode in embedded data for use in later rounds
+  Qualtrics.SurveyEngine.setEmbeddedData("Competition", assignedMode.competition);
+  Qualtrics.SurveyEngine.setEmbeddedData("GameMode", assignedMode.mode);
+  console.log("Randomly assigned:", assignedMode.competition, "competition,", assignedMode.mode, "mode");
 
-  jQuery("#" + qid + " .QuestionText").html(selectionHtml);
-
-  // Add hover effects
-  jQuery('#highCompBtn').hover(
-    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
-    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
-  );
-  jQuery('#lowCompBtn').hover(
-    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
-    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
-  );
-  jQuery('#soloBtn').hover(
-    function() { jQuery(this).css('transform', 'translateY(-2px) scale(1.02)'); },
-    function() { jQuery(this).css('transform', 'translateY(0) scale(1)'); }
-  );
-
-  // Handle button clicks
+  // Start the game immediately with the randomly assigned mode
   function startGame(competition, mode) {
-    // Set the competition level in embedded data for use in later rounds
-    Qualtrics.SurveyEngine.setEmbeddedData("Competition", competition);
-    Qualtrics.SurveyEngine.setEmbeddedData("GameMode", mode);
-    console.log("Player selected:", competition, "competition,", mode, "mode");
     
     var src = "https://stackadnan.github.io/tetris-game/"
       + "?competition=" + encodeURIComponent(competition)
@@ -104,22 +45,11 @@ Qualtrics.SurveyEngine.addOnReady(function() {
       +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
       +     'allowfullscreen>'
       +   '</iframe>'
-      + '</div>';
-
-    jQuery("#" + qid + " .QuestionText").html(gameHtml);
+      + '</div>';    jQuery("#" + qid + " .QuestionText").html(gameHtml);
   }
-  // Button event handlers
-  jQuery('#highCompBtn').click(function() {
-    startGame('High', 'vs');
-  });
-
-  jQuery('#lowCompBtn').click(function() {
-    startGame('Low', 'vs');
-  });
-
-  jQuery('#soloBtn').click(function() {
-    startGame('Low', 'solo'); // Use Low competition settings for solo mode
-  });
+  
+  // Start the game immediately with the randomly assigned mode
+  startGame(assignedMode.competition, assignedMode.mode);
 
   window.addEventListener("message", function(evt) {
     console.log('=== QUALTRICS MESSAGE LISTENER DEBUG (Round 1) ===');

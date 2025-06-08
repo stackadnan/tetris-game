@@ -13,11 +13,17 @@
   
   // Add debug logging for garbage system
   console.log('Garbage system enabled for high competition:', competition === 'high' && mode === 'vs');
-
   // --- Solo Mode Setup ---
   if (mode === 'solo') {
     document.body.classList.add('solo-mode');
     document.getElementById('loadingText').textContent = 'Loading Tetris...';
+  }
+  
+  // --- Competition Mode Setup ---
+  if (competition === 'low') {
+    document.body.classList.add('low-competition');
+  } else if (competition === 'high') {
+    document.body.classList.add('high-competition');
   }
   // --- CPU Name & Pill Color ---
   const names   = ['Ash', 'Jordan', 'Riley', 'Taylor'];

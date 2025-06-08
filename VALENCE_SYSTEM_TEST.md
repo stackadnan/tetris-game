@@ -43,17 +43,17 @@ Available valence messages - Win: Boom! You're on fire 🔥, Loss: Hey, not bad.
 ### 2. Game Outcome Testing
 For each sequence round URL:
 
-1. **Test Player Victory** - Let CPU lose first
-   - Should display `lossMsg` (CPU perspective)
-   - Round 1: "Hey, not bad. You'll bounce back!"
-   - Round 2: "Yikes. That one hurt, huh?"
-   - Round 3: "Well... that's over."
-
-2. **Test CPU Victory** - Let player lose first  
-   - Should display `winMsg` (CPU perspective)
+1. **Test Player Victory** - Let player win the match
+   - Should display `winMsg` (CPU acknowledges player's victory)
    - Round 1: "Boom! You're on fire 🔥"
    - Round 2: "You won… barely. Don't get cocky."
    - Round 3: "That's done. Let's tally things up."
+
+2. **Test Player Defeat** - Let CPU win the match  
+   - Should display `lossMsg` (CPU comments on player's defeat)
+   - Round 1: "Hey, not bad. You'll bounce back!"
+   - Round 2: "Yikes. That one hurt, huh?"
+   - Round 3: "Well... that's over."
 
 3. **Test Tie Game** - End with same scores
    - Should display `tieMsg`
@@ -72,8 +72,8 @@ Test the complete workflow through Qualtrics round files:
 ## Expected Results
 
 ### Message Perspective
-- **CPU Wins**: CPU celebrates with `winMsg`
-- **CPU Loses**: CPU acknowledges defeat with `lossMsg` 
+- **Player Wins**: CPU acknowledges player's victory with `winMsg`
+- **Player Loses**: CPU comments on player's defeat with `lossMsg` 
 - **Tie**: CPU gives neutral response with `tieMsg`
 
 ### Emotional Progression

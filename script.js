@@ -676,11 +676,10 @@
         console.log('CPU game over:', window.cpu.gameOver);
         console.log('Available valence messages - Win:', winMsg, 'Loss:', lossMsg, 'Tie:', tieMsg);
         console.log('====================');
-        
-        if (window.gameWinner === 'player') {
-          text = lossMsg; // Player won, so CPU "lost"
+          if (window.gameWinner === 'player') {
+          text = winMsg; // Player won, so CPU acknowledges player's victory
         } else if (window.gameWinner === 'cpu') {
-          text = winMsg; // CPU won, so CPU celebrates victory
+          text = lossMsg; // Player lost, so CPU comments on player's defeat
         } else {
           // Tie or undefined case
           text = tieMsg;

@@ -94,6 +94,12 @@ Each sequence round now has fixed, predefined chat messages based on game outcom
 - **Round 2 (Sequence)**: Negative Valence (Snarky, Tense, or Gritty) 
 - **Round 3 (Sequence)**: Neutral Valence (Flat, Reflective, or Unemotional)
 
+### Message Logic
+The messages are from the CPU's perspective about the **player's performance**:
+- `win`: CPU's response when **player wins** the match
+- `loss`: CPU's response when **player loses** the match  
+- `tie`: CPU's response when the match ends in a **tie**
+
 ### Message Configuration
 ```javascript
 var valenceMessages = {

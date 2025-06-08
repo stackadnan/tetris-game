@@ -7,14 +7,9 @@
   const mode        = params.get('mode') || 'vs'; // 'vs' or 'solo'
   const isMobile    = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
-  // Extract valence messages from URL parameters
-  const winMsg      = params.get('winMsg') || 'Thanks for playing. That was great.';
-  const lossMsg     = params.get('lossMsg') || 'Lol. I beat you. You lost.';
-  const tieMsg      = params.get('tieMsg') || 'That was something.';
   console.log(`Game initialized: Competition=${competition} (raw: ${competitionRaw}), Round=${round}, Mode=${mode}`);
   console.log(`Full URL: ${location.href}`);
   console.log(`URL search params: ${location.search}`);
-  console.log(`Valence Messages - Win: "${winMsg}", Loss: "${lossMsg}", Tie: "${tieMsg}"`);
   
   // Add debug logging for garbage system
   console.log('Garbage system enabled for high competition:', competition === 'high' && mode === 'vs');
@@ -667,27 +662,26 @@
       typingIndicator.style.display = 'none';
         // Add CPU message
       const cpuMessage = document.createElement('div');
-      cpuMessage.className = 'message ash';      // Determine who won based on actual game outcome and use passed valence messages
-      let text = tieMsg; // Default to tie message
+      cpuMessage.className = 'message ash';      // Determine who won based on actual game outcome
+      let text = 'That was something.';
       if (mode === 'vs') {        console.log('=== CHAT DEBUGGING ===');
         console.log('Game winner determined as:', window.gameWinner);
         console.log('Final scores - Player:', window.player.score, 'CPU:', window.cpu.score);
         console.log('Player game over:', window.player.gameOver);
         console.log('CPU game over:', window.cpu.gameOver);
-        console.log('Available valence messages - Win:', winMsg, 'Loss:', lossMsg, 'Tie:', tieMsg);
         console.log('====================');
         
         if (window.gameWinner === 'player') {
-          text = lossMsg; // Player won, so CPU "lost"
+          text = 'Thanks for playing. That was great.';
         } else if (window.gameWinner === 'cpu') {
-          text = winMsg; // CPU won, so CPU celebrates victory
+          text = 'Lol. I beat you. You lost.';
         } else {
           // Tie or undefined case
-          text = tieMsg;
+          text = 'That was something.';
         }
       } else {
-        // In solo mode, use win message (positive outcome)
-        text = winMsg;
+        // In solo mode, always congratulate
+        text = 'Thanks for playing. That was great.';
       }
         cpuMessage.textContent = text;
       chatMessages.appendChild(cpuMessage);

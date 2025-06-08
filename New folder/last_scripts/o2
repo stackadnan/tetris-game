@@ -1,6 +1,6 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
-  var valence = "${e://Field(Seq1)}";
-  var fileRound = 1; // This file is round1
+  var valence = "${e://Field(Seq2)}";
+  var fileRound = 2; // This file is round2
   var qid = this.questionId;
   
   // Dynamic sequencing system - determine actual sequence position
@@ -48,66 +48,32 @@ Qualtrics.SurveyEngine.addOnReady(function() {
       Qualtrics.SurveyEngine.setEmbeddedData("CurrentSequence", nextSequence.toString());
       return nextSequence;
     }
-  }
-  
-  // Fixed valence message system based on sequence round
-  var valenceMessages = {
-    1: { // Round 1 - Positive Valence
-      win: "Boom! You're on fire 🔥",
-      loss: "Hey, not bad. You'll bounce back!",
-      tie: "Nice clash! This is gonna be fun."
-    },
-    2: { // Round 2 - Negative Valence
-      win: "You won… barely. Don't get cocky.",
-      loss: "Yikes. That one hurt, huh?",
-      tie: "Still stuck? Maybe you're slipping..."
-    },
-    3: { // Round 3 - Neutral Valence
-      win: "That's done. Let's tally things up.",
-      loss: "Well... that's over.",
-      tie: "Okay. That happened."
-    }
-  };
-  
-  // Get the appropriate valence message set for this sequence round
-  var currentValenceMessages = valenceMessages[displayRound] || valenceMessages[1];
-  console.log("Using valence messages for sequence round:", displayRound, currentValenceMessages);
-    // Start the game immediately with the determined settings
-  function startGame(competition, mode) {
-    
-    var src = "https://stackadnan.github.io/tetris-game/"
-      + "?competition=" + encodeURIComponent(competition)
-      + "&valence=" + encodeURIComponent(valence)
-      + "&mode=" + encodeURIComponent(mode)
-      + "&round=" + displayRound
-      + "&winMsg=" + encodeURIComponent(currentValenceMessages.win)
-      + "&lossMsg=" + encodeURIComponent(currentValenceMessages.loss)
-      + "&tieMsg=" + encodeURIComponent(currentValenceMessages.tie);
+  }  // build a 100% wide, 75vh tall iframe with responsive dimensions
+  var src = "https://stackadnan.github.io/tetris-game/"
+    + "?competition=" + encodeURIComponent(competition)
+    + "&valence="     + encodeURIComponent(valence)
+    + "&mode="        + encodeURIComponent(mode)
+    + "&round="       + displayRound; // Use sequence-based round number
 
-    // Detect mobile devices
-    var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    // Set dimensions based on device type
-    var containerStyle = isMobile 
-      ? "font-family:sans-serif; width:315px; height:600px; overflow:hidden; user-scalable=no; margin:0 auto;"
-      : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
-    
-    var gameHtml = ''
-      + '<div style="' + containerStyle + '">'
-      +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-      +     'Round ' + displayRound + ' (' + competition + ' ' + (mode === 'solo' ? 'Solo' : 'Competition') + ')'
-      +   '</h3>'
-      +   '<iframe '
-      +     'src="' + src + '" '
-      +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
-      +     'allowfullscreen>'
-      +   '</iframe>'
-      + '</div>';    jQuery("#" + qid + " .QuestionText").html(gameHtml);
-  }
+  // Detect mobile devices
+  var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
-  // Start the game immediately with the determined settings
-  startGame(competition, mode);
-  window.addEventListener("message", function(evt) {
+  // Set dimensions based on device type
+  var containerStyle = isMobile 
+    ? "font-family:sans-serif; width:315px; height:600px; overflow:hidden; user-scalable=no; margin:0 auto;"
+    : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
+      var html = ''
+    + '<div style="' + containerStyle + '">'
+    +   '<h3 style="font-size:1.2em; margin:4px 0;">'
+    +     'Round ' + displayRound + ' (' + competition + ' ' + (mode === 'solo' ? 'Solo' : 'Competition') + ')'
+    +   '</h3>'
+    +   '<iframe '
+    +     'src="' + src + '" '
+    +     'style="width:100%; height:calc(100% - 30px); border:0; display:block;" '
+    +     'allowfullscreen>'
+    +   '</iframe>'
+    + '</div>';
+  jQuery("#" + qid + " .QuestionText").html(html);  window.addEventListener("message", function(evt) {
     console.log('=== QUALTRICS MESSAGE LISTENER DEBUG (File Round ' + fileRound + ', Sequence Round ' + sequenceRound + ') ===');
     console.log('Received message event:', evt);
     console.log('Message data:', evt.data);

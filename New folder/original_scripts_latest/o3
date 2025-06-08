@@ -16,19 +16,31 @@ Qualtrics.SurveyEngine.addOnReady(function() {
     console.log("Competition from Qualtrics in round 3:", competition);
   }
   
+  // Get game mode from embedded data set in round 1
+  var mode = Qualtrics.SurveyEngine.getEmbeddedData("GameMode") || 'vs';
+  console.log("Game mode loaded from embedded data in round 3:", mode);
+  
   var valence     = "${e://Field(Seq3)}";
   var round       = 3;
   var qid         = this.questionId;
-
-  // build a 100% wide, 75vh tall iframe
+  // build a 100% wide, 75vh tall iframe with responsive dimensions
   var src = "https://stackadnan.github.io/tetris-game/"
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
+    + "&mode="        + encodeURIComponent(mode)
     + "&round="       + round;
-  var html = ''
-    + '<div style="font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no">'
+
+  // Detect mobile devices
+  var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Set dimensions based on device type
+  var containerStyle = isMobile 
+    ? "font-family:sans-serif; width:315px; height:600px; overflow:hidden; user-scalable=no; margin:0 auto;"
+    : "font-family:sans-serif; width:130vh; height:90vh; overflow:hidden; user-scalable=no";
+      var html = ''
+    + '<div style="' + containerStyle + '">'
     +   '<h3 style="font-size:1.2em; margin:4px 0;">'
-    +     'Round 3 ('+competition+' Competition)'
+    +     'Round 3 (' + competition + ' ' + (mode === 'solo' ? 'Solo' : 'Competition') + ')'
     +   '</h3>'
     +   '<iframe '
     +     'src="' + src + '" '

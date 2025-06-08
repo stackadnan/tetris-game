@@ -372,6 +372,11 @@ body.low-competition #scoreBarVertical {
   display: none !important;
 }
 
+/* Change top score bar background color for low competition mode */
+body.low-competition #scoreBars {
+  background: #111111a1 !important;
+}
+
 /* Vertical Score Bars */
 #scoreBarVertical {
   display: flex;

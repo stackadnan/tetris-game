@@ -1,7 +1,14 @@
 Qualtrics.SurveyEngine.addOnReady(function() {
+  // FORCE TEST DATA - Check if embedded data works at all
+  Qualtrics.SurveyEngine.setEmbeddedData("TestField_Round3", "WORKING_" + new Date().getTime());
+  console.log("FORCE TEST: Created TestField_Round3");
+  
   var valence = "${e://Field(Seq3)}";
   var fileRound = 3; // This file is round3
   var qid = this.questionId;
+  
+  // Auto-initialize chat data fields if they don't exist
+  initializeChatDataFields();
   
   // Dynamic sequencing system - determine actual sequence position
   var sequenceRound = getOrSetSequenceRound();
@@ -34,7 +41,37 @@ Qualtrics.SurveyEngine.addOnReady(function() {
     mode = Qualtrics.SurveyEngine.getEmbeddedData("GameMode") || "vs";
     console.log("SUBSEQUENT ROUND - Using existing settings:", competition, "competition,", mode, "mode");
   }
-  
+    // Auto-initialize embedded data fields for chat collection
+  function initializeChatDataFields() {
+    console.log('=== INITIALIZING CHAT DATA FIELDS ===');
+    
+    // Initialize all chat response fields (player responses)
+    for (var i = 1; i <= 3; i++) {
+      var playerField = "ChatResponse" + i;
+      var existingPlayerValue = Qualtrics.SurveyEngine.getEmbeddedData(playerField);
+      if (existingPlayerValue === null || existingPlayerValue === undefined) {
+        Qualtrics.SurveyEngine.setEmbeddedData(playerField, "");
+        console.log('Created player chat field:', playerField);
+      } else {
+        console.log('Player chat field already exists:', playerField, '=', existingPlayerValue);
+      }
+    }
+    
+    // Initialize all opponent chat fields (CPU messages)
+    for (var i = 1; i <= 3; i++) {
+      var opponentField = "OpponentChat" + i;
+      var existingOpponentValue = Qualtrics.SurveyEngine.getEmbeddedData(opponentField);
+      if (existingOpponentValue === null || existingOpponentValue === undefined) {
+        Qualtrics.SurveyEngine.setEmbeddedData(opponentField, "");
+        console.log('Created opponent chat field:', opponentField);
+      } else {
+        console.log('Opponent chat field already exists:', opponentField, '=', existingOpponentValue);
+      }
+    }
+    
+    console.log('=== CHAT DATA FIELDS INITIALIZATION COMPLETE ===');
+  }
+
   // Dynamic sequencing helper function
   function getOrSetSequenceRound() {
     var currentSequence = Qualtrics.SurveyEngine.getEmbeddedData("CurrentSequence");

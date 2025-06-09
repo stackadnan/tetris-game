@@ -123,24 +123,24 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 2px;
   z-index: 10;
 }
 
 /* Game Area */
 #tetrisWrapper {
-  position: static;
-  top: unset;
-  bottom: unset;
-  left: unset;
-  right: unset;
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  padding: 8px;
-  min-width: 620px; /* Minimum width for two canvases + score bar */
+    position: static;
+    top: unset;
+    bottom: unset;
+    left: unset;
+    right: unset;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0px;
+    min-width: 425px;
 }
 
 /* Solo Mode Instructions - Fixed width */
@@ -391,7 +391,6 @@ body.low-competition #scoreBars {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 18px;
   height: 100%;
 }
 .score-bar-wrapper {
@@ -718,9 +717,9 @@ canvas.cpu    { border: 3px solid red; }
   }
   
   #holdButton {
-    width: 120px;
-    height: 40px;
-    font-size: 1.1rem;
+    width: 100px;
+    height: 35px;
+    font-size: 1.0rem;
   }
   
   .moveButtons button {
@@ -736,9 +735,9 @@ canvas.cpu    { border: 3px solid red; }
   }
   
   #dropButton {
-    width: 180px;
-    height: 40px;
-    font-size: 1.2rem;
+    width: 165px;
+    height: 35px;
+    font-size: 1.0rem;
   }
   
   #soloInstructions {
@@ -747,9 +746,9 @@ canvas.cpu    { border: 3px solid red; }
   }
   
   canvas {
-    width: 250px;
+    width: 180px;
     max-width: 250px;
-    height: 500px;
+    height: 245px;
   }
 }
 
@@ -761,7 +760,7 @@ canvas.cpu    { border: 3px solid red; }
   }
   
   #controls {
-    width: 140px;
+    width: 165px;
   }
   
   #soloInstructions {
@@ -770,9 +769,9 @@ canvas.cpu    { border: 3px solid red; }
   }
   
   canvas {
-    width: 200px;
+    width: 180px;
     max-width: 200px;
-    height: 400px;
+    height: 350px;
   }
 }
 
@@ -883,7 +882,7 @@ canvas.cpu    { border: 3px solid red; }
     align-items: flex-start;
     justify-content: flex-start;
     min-width: unset;
-    gap: 0px;
+    gap: 8px;
     padding: 0;
     padding-top: 20px;
     width: 100%;

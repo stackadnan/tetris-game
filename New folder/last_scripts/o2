@@ -48,12 +48,39 @@ Qualtrics.SurveyEngine.addOnReady(function() {
       Qualtrics.SurveyEngine.setEmbeddedData("CurrentSequence", nextSequence.toString());
       return nextSequence;
     }
-  }  // build a 100% wide, 75vh tall iframe with responsive dimensions
+  }
+  
+  // Fixed valence message system based on sequence round
+  var valenceMessages = {
+    1: { // Round 1 - Positive Valence
+      win: "Boom! You're on fire 🔥",
+      loss: "Hey, not bad. You'll bounce back!",
+      tie: "Nice clash! This is gonna be fun."
+    },
+    2: { // Round 2 - Negative Valence
+      win: "You won… barely. Don't get cocky.",
+      loss: "Yikes. That one hurt, huh?",
+      tie: "Still stuck? Maybe you're slipping..."
+    },
+    3: { // Round 3 - Neutral Valence
+      win: "That's done. Let's tally things up.",
+      loss: "Well... that's over.",
+      tie: "Okay. That happened."
+    }
+  };
+  
+  // Get the appropriate valence message set for this sequence round
+  var currentValenceMessages = valenceMessages[displayRound] || valenceMessages[1];
+  console.log("Using valence messages for sequence round:", displayRound, currentValenceMessages);
+    // build a 100% wide, 75vh tall iframe with responsive dimensions
   var src = "https://stackadnan.github.io/tetris-game/"
     + "?competition=" + encodeURIComponent(competition)
     + "&valence="     + encodeURIComponent(valence)
     + "&mode="        + encodeURIComponent(mode)
-    + "&round="       + displayRound; // Use sequence-based round number
+    + "&round="       + displayRound
+    + "&winMsg=" + encodeURIComponent(currentValenceMessages.win)
+    + "&lossMsg=" + encodeURIComponent(currentValenceMessages.loss)
+    + "&tieMsg=" + encodeURIComponent(currentValenceMessages.tie);
 
   // Detect mobile devices
   var isMobile = window.innerWidth <= 480 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);

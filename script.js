@@ -505,9 +505,14 @@
       }
     }
   }
-
   // --- Input Handling & Utilities ---  // Update score pills and show lead text
   function updateScores(p, c) {
+    // Check for score increases in high competition mode
+    const prevP = updateScores.prevPlayerScore || 0;
+    const prevC = updateScores.prevCpuScore || 0;
+    const playerScoreIncrease = p > prevP;
+    const cpuScoreIncrease = c > prevC;
+    
     document.getElementById('playerScorePill').textContent = p;
     if (mode === 'vs') {
       document.getElementById('cpuScorePill').textContent = c;
@@ -548,9 +553,67 @@
     let maxScore = Math.max(1000, p, c);
     if (maxScore === 0) maxScore = 1;
     const playerPct = p / maxScore;
-    const cpuPct = c / maxScore;
-    if (playerInner) playerInner.style.height = (playerPct * 100) + '%';
+    const cpuPct = c / maxScore;    if (playerInner) playerInner.style.height = (playerPct * 100) + '%';
     if (cpuInner && mode === 'vs') cpuInner.style.height = (cpuPct * 100) + '%';
+    
+    // Add shake effect for score increases in high competition mode
+    if (competition === 'high') {
+      // Shake vertical score bars when scores increase
+      if (playerScoreIncrease && document.getElementById('scoreBarVertical')) {
+        const playerBar = document.querySelector('.score-bar.player');
+        const playerWrapper = playerBar?.closest('.score-bar-wrapper');
+        if (playerWrapper) {
+          playerWrapper.classList.remove('score-bar-pulse-shake');
+          // Force reflow to restart animation
+          playerWrapper.offsetHeight;
+          playerWrapper.classList.add('score-bar-pulse-shake');
+          setTimeout(() => playerWrapper.classList.remove('score-bar-pulse-shake'), 800);
+        }
+      }
+      
+      if (cpuScoreIncrease && mode === 'vs' && document.getElementById('scoreBarVertical')) {
+        const cpuBar = document.querySelector('.score-bar.cpu');
+        const cpuWrapper = cpuBar?.closest('.score-bar-wrapper');
+        if (cpuWrapper) {
+          cpuWrapper.classList.remove('score-bar-pulse-shake');
+          // Force reflow to restart animation
+          cpuWrapper.offsetHeight;
+          cpuWrapper.classList.add('score-bar-pulse-shake');
+          setTimeout(() => cpuWrapper.classList.remove('score-bar-pulse-shake'), 800);
+        }
+      }
+        // Shake mobile/horizontal score pills when scores increase
+      if (playerScoreIncrease) {
+        const playerPill = document.getElementById('playerPill');
+        if (playerPill) {
+          // Use different animation for mobile vs desktop
+          const shakeClass = isMobile ? 'score-bar-shake-mobile' : 'score-bar-shake';
+          const duration = isMobile ? 700 : 600;
+          
+          playerPill.classList.remove('score-bar-shake', 'score-bar-shake-mobile');
+          // Force reflow to restart animation
+          playerPill.offsetHeight;
+          playerPill.classList.add(shakeClass);
+          setTimeout(() => playerPill.classList.remove(shakeClass), duration);
+        }
+      }
+      
+      if (cpuScoreIncrease && mode === 'vs') {
+        const cpuPill = document.getElementById('cpuPill');
+        if (cpuPill) {
+          // Use different animation for mobile vs desktop
+          const shakeClass = isMobile ? 'score-bar-shake-mobile' : 'score-bar-shake';
+          const duration = isMobile ? 700 : 600;
+          
+          cpuPill.classList.remove('score-bar-shake', 'score-bar-shake-mobile');
+          // Force reflow to restart animation
+          cpuPill.offsetHeight;
+          cpuPill.classList.add(shakeClass);
+          setTimeout(() => cpuPill.classList.remove(shakeClass), duration);
+        }
+      }
+    }
+    
     const lead = document.getElementById('leadText');
     if (mode === 'vs' && competition === 'high') {
       if (p > c && updateScores.last !== 'p') {
@@ -566,8 +629,13 @@
         updateScores.last = 'c';
       }
     }
-  }
+    
+    // Store current scores for next comparison
+    updateScores.prevPlayerScore = p;
+    updateScores.prevCpuScore = c;  }
   updateScores.last = null;
+  updateScores.prevPlayerScore = 0;
+  updateScores.prevCpuScore = 0;
   // Flash a TETRIS alert
   function triggerTetrisAlert() {
     const overlay = document.getElementById('tetrisOverlay');

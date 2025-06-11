@@ -1,9 +1,4 @@
-Qualtrics.SurveyEngine.addOnReady(function() {
-  // FORCE TEST DATA - Check if embedded data works at all
-  Qualtrics.SurveyEngine.setEmbeddedData("TestField_Round3", "WORKING_" + new Date().getTime());
-  console.log("FORCE TEST: Created TestField_Round3");
-  
-  var valence = "${e://Field(Seq3)}";
+Qualtrics.SurveyEngine.addOnReady(function() {  var valence = "${e://Field(Seq3)}";
   var fileRound = 3; // This file is round3
   var qid = this.questionId;
   
@@ -90,19 +85,19 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   // Fixed valence message system based on sequence round
   var valenceMessages = {
     1: { // Round 1 - Positive Valence
-      win: "Thanks for Playing .That was Great!",
-      loss: "Thanks for Playing .That was Great!",
-      tie: "Thanks for Playing .That was Great!"
+      win: "Boom! You're on fire 🔥",
+      loss: "Hey, not bad. You'll bounce back!",
+      tie: "Nice clash! This is gonna be fun."
     },
     2: { // Round 2 - Negative Valence
-      win: "Lol,I beat you! you lost.",
-      loss: "Lol,I beat you! you lost.",
-      tie: "Lol,I beat you! you lost."
+      win: "You won… barely. Don't get cocky.",
+      loss: "Yikes. That one hurt, huh?",
+      tie: "Still stuck? Maybe you're slipping..."
     },
     3: { // Round 3 - Neutral Valence
-      win: "That was something.",
-      loss: "That was something.",
-      tie: "That was something."
+      win: "That's done. Let's tally things up.",
+      loss: "Well... that's over.",
+      tie: "Okay. That happened."
     }
   };
   

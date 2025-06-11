@@ -90,19 +90,19 @@ Qualtrics.SurveyEngine.addOnReady(function() {
   // Fixed valence message system based on sequence round
   var valenceMessages = {
     1: { // Round 1 - Positive Valence
-      win: "Boom! You're on fire 🔥",
-      loss: "Hey, not bad. You'll bounce back!",
-      tie: "Nice clash! This is gonna be fun."
+      win: "Thanks for Playing .That was Great!",
+      loss: "Thanks for Playing .That was Great!",
+      tie: "Thanks for Playing .That was Great!"
     },
     2: { // Round 2 - Negative Valence
-      win: "You won… barely. Don't get cocky.",
-      loss: "Yikes. That one hurt, huh?",
-      tie: "Still stuck? Maybe you're slipping..."
+      win: "Lol,I beat you! you lost.",
+      loss: "Lol,I beat you! you lost.",
+      tie: "Lol,I beat you! you lost."
     },
     3: { // Round 3 - Neutral Valence
-      win: "That's done. Let's tally things up.",
-      loss: "Well... that's over.",
-      tie: "Okay. That happened."
+      win: "That was something.",
+      loss: "That was something.",
+      tie: "That was something."
     }
   };
   

@@ -41,15 +41,15 @@
       cpuPill.className = 'pill purple';
       document.getElementById('cpuCanvas').style.borderColor = 'purple';
     }
-  }
-  // --- Responsive Canvas Sizing ---
+  }  // --- Responsive Canvas Sizing ---
   if (mode === 'vs') {
     if (isMobile && competition === 'high') {
       document.getElementById('playerCanvas').style.maxWidth = '90vw';
       document.getElementById('cpuCanvas'   ).style.maxWidth = '60vw';
     }
     if (isMobile && competition === 'low') {
-      document.getElementById('cpuCanvas').style.display = 'none';
+      // Show CPU canvas in low competition mode as well
+      document.getElementById('cpuCanvas').style.maxWidth = '60vw';
     }
   }
   // --- Loading Sequence ---
@@ -210,12 +210,12 @@
           // Send more garbage: 2x lines cleared
           this.garbage += L * 1;
           console.log(`${this.mode} cleared ${L} lines, added ${L*1} garbage. Total garbage: ${this.garbage}`);
-        }
-        // In low competition, do not send garbage
+        }        // In low competition, do not send garbage
         if (mode === 'vs' && competition === 'low') {
           this.garbage = 0;
         }
-        if (L >= 4) triggerTetrisAlert();
+        // Only show Tetris alert in high competition mode
+        if (L >= 4 && competition === 'high') triggerTetrisAlert();
       }
       this.spawn();
     }

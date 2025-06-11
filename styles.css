@@ -367,14 +367,16 @@ body.solo-mode #scoreBars {
   text-align: center;
 }
 
-/* Hide vertical score bar between canvases for low competition mode on desktop */
-body.low-competition #scoreBarVertical {
+/* Show vertical score bar between canvases for low competition mode on desktop */
+/* body.low-competition #scoreBarVertical {
   display: none !important;
-}
+} */
 
-/* Change top score bar background color for low competition mode */
-body.low-competition #scoreBars {
-  background: #111111a1 !important;
+/* Change top score bar background color for low competition mode - DESKTOP ONLY */
+@media (min-width: 481px) {
+  body.low-competition #scoreBars {
+    background: #111111a1 !important;
+  }
 }
 
 /* Vertical Score Bars */
@@ -793,7 +795,7 @@ canvas.cpu    { border: 3px solid red; }
 
     gap: 1px;
     height: auto;
-    min-height: 120px;
+    min-height: 60px;
   }
   
   /* Add score text labels */
@@ -860,7 +862,6 @@ canvas.cpu    { border: 3px solid red; }
   #playerPill {
     order: 1;
   }
-  
   /* Hide vertical score bars in mobile */
   #scoreBarVertical {
     display: none !important;
